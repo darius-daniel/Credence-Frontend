@@ -1,0 +1,178 @@
+.activity-surface {
+    background: var(--credence-surface-card);
+    border: 1px solid var(--credence-border-default);
+    border-radius: var(--credence-radius-xl);
+    padding: var(--credence-space-5);
+    color: var(--credence-text-primary);
+}
+
+.activity-surface__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--credence-space-4);
+    margin-bottom: var(--credence-space-5);
+}
+
+.activity-surface__eyebrow {
+    font-size: var(--credence-font-size-xs);
+    line-height: var(--credence-line-height-tight);
+    color: var(--credence-text-secondary);
+    margin-bottom: var(--credence-space-1);
+}
+
+.activity-surface__title {
+    font-size: var(--credence-font-size-lg);
+    line-height: var(--credence-line-height-tight);
+    font-weight: var(--credence-font-weight-semibold);
+}
+
+.activity-surface__summary {
+    font-size: var(--credence-font-size-sm);
+    line-height: var(--credence-line-height-base);
+    color: var(--credence-text-secondary);
+}
+
+.activity-timeline {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--credence-space-4);
+}
+
+.activity-row {
+    display: grid;
+    grid-template-columns: var(--credence-space-6) minmax(7.5rem, 9rem) 1fr auto;
+    gap: var(--credence-space-3);
+    align-items: flex-start;
+}
+
+.activity-row__rail {
+    position: relative;
+    min-height: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.activity-row__node {
+    width: var(--credence-space-3);
+    height: var(--credence-space-3);
+    border-radius: var(--credence-radius-full);
+    border: 2px solid var(--credence-color-primary);
+    background: var(--credence-surface-card);
+    z-index: 1;
+    margin-top: var(--credence-space-1);
+}
+
+.activity-row__node--success {
+    border-color: var(--credence-color-success-border);
+}
+
+.activity-row__node--warning {
+    border-color: var(--credence-color-warning-border);
+}
+
+.activity-row__node--info {
+    border-color: var(--credence-color-info-border);
+}
+
+.activity-row__line {
+    position: absolute;
+    top: 0;
+    bottom: calc(var(--credence-space-1) * -1);
+    width: 2px;
+    background: var(--credence-border-default);
+}
+
+.activity-row:last-child .activity-row__line {
+    display: none;
+}
+
+.activity-row__time {
+    font-size: var(--credence-font-size-xs);
+    line-height: var(--credence-line-height-base);
+    color: var(--credence-text-secondary);
+    padding-top: var(--credence-space-1);
+}
+
+.activity-row__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--credence-space-2);
+}
+
+.activity-row__title-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--credence-space-2);
+}
+
+.activity-row__title {
+    font-size: var(--credence-font-size-sm);
+    line-height: var(--credence-line-height-tight);
+    font-weight: var(--credence-font-weight-semibold);
+}
+
+.activity-row__status {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--credence-space-1) var(--credence-space-2);
+    border-radius: var(--credence-radius-full);
+    font-size: var(--credence-font-size-xs);
+    line-height: var(--credence-line-height-tight);
+    font-weight: var(--credence-font-weight-semibold);
+}
+
+.activity-row__status--success {
+    background: var(--credence-color-success-surface);
+    color: var(--credence-color-success-text);
+}
+
+.activity-row__status--warning {
+    background: var(--credence-color-warning-surface);
+    color: var(--credence-color-warning-text);
+}
+
+.activity-row__status--info {
+    background: var(--credence-color-info-surface);
+    color: var(--credence-color-info-text);
+}
+
+.activity-row__description,
+.activity-row__actor,
+.activity-row__meta {
+    font-size: var(--credence-font-size-xs);
+    line-height: var(--credence-line-height-base);
+}
+
+.activity-row__description,
+.activity-row__actor {
+    color: var(--credence-text-secondary);
+}
+
+.activity-row__meta {
+    color: var(--credence-text-secondary);
+    white-space: nowrap;
+    padding-top: var(--credence-space-1);
+}
+
+@media (max-width: 767px) {
+    .activity-surface {
+        padding: var(--credence-space-4);
+    }
+
+    .activity-row {
+        grid-template-columns: var(--credence-space-5) 1fr;
+        row-gap: var(--credence-space-2);
+    }
+
+    .activity-row__time,
+    .activity-row__meta {
+        grid-column: 2;
+    }
+
+    .activity-row__meta {
+        padding-top: 0;
+    }
+}
