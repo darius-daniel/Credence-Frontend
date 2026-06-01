@@ -4,9 +4,30 @@ import { useToast } from '../components/ToastProvider'
 import Badge from '../components/Badge'
 import ActionCard from '../components/ActionCard'
 import Button from '../components/Button'
+import AmountInput from '../components/AmountInput'
+import { FormField } from '../components/forms/FormField'
+import { useMemo, useState } from 'react'
 
 export default function Bond() {
   const { addToast } = useToast()
+  const [amount, setAmount] = useState('')
+
+  const mockedBalance = 2500
+
+  const parsedAmount = useMemo(() => {
+    const normalized = amount.replace(/,/g, '').trim()
+    if (!normalized) return 0
+    const numericValue = Number(normalized)
+    return Number.isFinite(numericValue) ? numericValue : 0
+  }, [amount])
+
+  const overBalance = parsedAmount > mockedBalance
+  const balanceLabel = useMemo(() => {
+    return new Intl.NumberFormat(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(mockedBalance)
+  }, [mockedBalance])
 
   const handleCreate = () => {
     addToast('success', 'Bond created successfully.')
@@ -39,35 +60,22 @@ export default function Bond() {
         }}
       >
         <ActionCard title="Create New Bond">
-          <label
-            htmlFor="bond-amount"
-            style={{
-              display: 'block',
-              marginBottom: 'var(--credence-space-2)',
-              fontWeight: 'var(--credence-font-weight-semibold)',
-              color: 'var(--credence-text-secondary)',
-            }}
-          >
-            Amount (USDC)
-          </label>
-          <input
+          <FormField
             id="bond-amount"
-            type="number"
-            placeholder="0"
-            min="0"
-            step="1"
-            aria-describedby="bond-desc"
-            style={{
-              width: '100%',
-              padding: 'var(--credence-space-3) var(--credence-space-4)',
-              border: '1px solid var(--border-default)',
-              borderRadius: 'var(--credence-radius-lg)',
-              fontSize: 'var(--credence-font-size-base)',
-              margin: 0,
-              background: 'var(--bg-page)',
-              color: 'var(--text-primary)',
-            }}
-          />
+            label="Amount (USDC)"
+            hint={`Available: ${balanceLabel} USDC`}
+            error={overBalance ? 'Amount exceeds available balance.' : undefined}
+          >
+            <AmountInput
+              value={amount}
+              onChange={setAmount}
+              balance={mockedBalance}
+              presets={[100, 500, 1000]}
+              placeholder="0.00"
+              aria-describedby="bond-desc"
+              error={overBalance ? 'Amount exceeds available balance.' : undefined}
+            />
+          </FormField>
           <Button
             type="button"
             onClick={handleCreate}

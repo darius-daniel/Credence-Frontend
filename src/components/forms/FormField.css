@@ -1,0 +1,23 @@
+.form-field {
+  display: grid;
+  gap: var(--credence-space-2);
+}
+
+.form-field label {
+  font-weight: var(--credence-font-weight-semibold);
+  color: var(--credence-text-secondary);
+}
+
+.form-hint {
+  color: var(--credence-text-secondary);
+  font-size: var(--credence-font-size-sm);
+}
+
+.form-error {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--credence-space-2);
+  color: var(--credence-color-danger-text);
+  font-size: var(--credence-font-size-sm);
+}
+
