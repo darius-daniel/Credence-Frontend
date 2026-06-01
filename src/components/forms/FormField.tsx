@@ -1,4 +1,5 @@
 import React from 'react'
+import './FormField.css'
 
 interface FormFieldProps {
   id: string
@@ -11,6 +12,7 @@ interface FormFieldProps {
 export function FormField({ id, label, hint, error, children }: FormFieldProps) {
   const hintId = hint ? `${id}-hint` : undefined
   const errorId = error ? `${id}-error` : undefined
+  const existingDescribedBy = children.props['aria-describedby'] as string | undefined
 
   return (
     <div className="form-field">
@@ -24,7 +26,8 @@ export function FormField({ id, label, hint, error, children }: FormFieldProps) 
 
       {React.cloneElement(children, {
         id,
-        'aria-describedby': [hintId, errorId].filter(Boolean).join(' ') || undefined,
+        'aria-describedby':
+          [existingDescribedBy, hintId, errorId].filter(Boolean).join(' ') || undefined,
         'aria-invalid': error ? 'true' : undefined,
       })}
 

@@ -2,9 +2,36 @@ import Banner from '../components/Banner'
 import Disclaimer from '../components/Disclaimer'
 import Badge from '../components/Badge'
 import ActionCard from '../components/ActionCard'
-import CreateBondFlow from '../components/CreateBondFlow'
+import Button from '../components/Button'
+import AmountInput from '../components/AmountInput'
+import { FormField } from '../components/forms/FormField'
+import { useMemo, useState } from 'react'
 
 export default function Bond() {
+  const { addToast } = useToast()
+  const [amount, setAmount] = useState('')
+
+  const mockedBalance = 2500
+
+  const parsedAmount = useMemo(() => {
+    const normalized = amount.replace(/,/g, '').trim()
+    if (!normalized) return 0
+    const numericValue = Number(normalized)
+    return Number.isFinite(numericValue) ? numericValue : 0
+  }, [amount])
+
+  const overBalance = parsedAmount > mockedBalance
+  const balanceLabel = useMemo(() => {
+    return new Intl.NumberFormat(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(mockedBalance)
+  }, [mockedBalance])
+
+  const handleCreate = () => {
+    addToast('success', 'Bond created successfully.')
+  }
+
   const mockBonds = [
     { id: 1, amount: '500 USDC', status: 'active' },
     { id: 2, amount: '1000 USDC', status: 'locked' },
@@ -29,7 +56,38 @@ export default function Bond() {
         }}
       >
         <ActionCard title="Create New Bond">
-          <CreateBondFlow />
+          <FormField
+            id="bond-amount"
+            label="Amount (USDC)"
+            hint={`Available: ${balanceLabel} USDC`}
+            error={overBalance ? 'Amount exceeds available balance.' : undefined}
+          >
+            <AmountInput
+              value={amount}
+              onChange={setAmount}
+              balance={mockedBalance}
+              presets={[100, 500, 1000]}
+              placeholder="0.00"
+              aria-describedby="bond-desc"
+              error={overBalance ? 'Amount exceeds available balance.' : undefined}
+            />
+          </FormField>
+          <Button
+            type="button"
+            onClick={handleCreate}
+            style={{
+              width: '100%',
+              padding: 'var(--credence-space-3) var(--credence-space-4)',
+              background: 'var(--color-primary)',
+              color: 'var(--bg-page)',
+              border: 'none',
+              borderRadius: 'var(--credence-radius-lg)',
+              fontWeight: 'var(--credence-font-weight-semibold)',
+              cursor: 'pointer',
+            }}
+          >
+            Create bond
+          </Button>
         </ActionCard>
 
         <ActionCard title="Active Bonds">
