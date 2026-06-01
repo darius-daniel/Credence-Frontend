@@ -3,7 +3,7 @@ import Disclaimer from '../components/Disclaimer'
 import { useToast } from '../components/ToastProvider'
 import Badge from '../components/Badge'
 import Button from '../components/Button'
-import TrustGauge, { type TrustTier } from '../components/TrustGauge'
+import './TrustScore.css'
 
 export default function TrustScore() {
   const { addToast } = useToast()
@@ -25,55 +25,21 @@ export default function TrustScore() {
 
   return (
     <div>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          marginBottom: '0.5rem',
-        }}
-      >
-        <h1 style={{ margin: 0, color: 'var(--text-primary)' }}>Trust Score</h1>
-        <Badge
-          variant={currentTier}
-          label={`${currentTier.charAt(0).toUpperCase()}${currentTier.slice(1)} Tier`}
-          className="tier-badge"
-        />
+      <div className="trustScore__headerRow">
+        <h1 className="trustScore__title">Trust Score</h1>
+        <Badge variant="gold" label="Gold Tier" className="tier-badge" />
       </div>
-      <p id="trust-desc" style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+      <p id="trust-desc" className="trustScore__description">
         Your reputation score is computed from bond amount, duration, and attestations.
       </p>
       <Banner severity="info">
         Scores update once per epoch. Recent bond changes may not be reflected immediately.
       </Banner>
 
-      {/* Trust Score Gauge - Primary visualization */}
-      <div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-        <TrustGauge score={currentScore} tier={currentTier} />
-      </div>
-
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '2rem',
-          marginTop: '2rem',
-        }}
-      >
-        <div
-          style={{
-            padding: '1.5rem',
-            border: '1px solid var(--border-default)',
-            borderRadius: '12px',
-            background: 'var(--bg-card)',
-            color: 'var(--text-primary)',
-          }}
-        >
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Lookup Identity</h2>
-          <label
-            htmlFor="wallet-address"
-            style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}
-          >
+      <div className="trustScore__grid">
+        <div className="trustScore__card">
+          <h2 className="trustScore__cardTitle">Lookup Identity</h2>
+          <label htmlFor="wallet-address" className="trustScore__label">
             Identity / Wallet address
           </label>
           <input
@@ -81,50 +47,29 @@ export default function TrustScore() {
             type="text"
             placeholder="G..."
             aria-describedby="trust-desc"
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '1px solid var(--border-default)',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              marginBottom: '1rem',
-              background: 'var(--bg-page)',
-              color: 'var(--text-primary)',
-            }}
+            className="trustScore__input"
           />
           <Button type="button" onClick={handleLookup} variant="primary" fullWidth>
             Look up score
           </Button>
         </div>
 
-        <div
-          style={{
-            padding: '1.5rem',
-            border: '1px solid var(--border-default)',
-            borderRadius: '12px',
-            background: 'var(--bg-card)',
-            color: 'var(--text-primary)',
-          }}
-        >
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Recent Activity</h2>
-          <ul style={{ listStyle: 'none', padding: 0 }}>
-            {mockActivity.map((item) => (
+        <div className="trustScore__card">
+          <h2 className="trustScore__cardTitle">Recent Activity</h2>
+          <ul className="trustScore__activityList">
+            {mockActivity.map((item, index) => (
               <li
                 key={item.id}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '0.75rem 0',
-                  borderBottom:
-                    item.id === mockActivity.length ? 'none' : '1px solid var(--border-default)',
-                }}
+                className={[
+                  'trustScore__activityRow',
+                  index === mockActivity.length - 1 ? 'trustScore__activityRow--last' : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
               >
                 <div>
-                  <div style={{ fontWeight: 500 }}>{item.action}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                    {item.date}
-                  </div>
+                  <div className="trustScore__activityAction">{item.action}</div>
+                  <div className="trustScore__activityDate">{item.date}</div>
                 </div>
                 <Badge variant={item.status} />
               </li>

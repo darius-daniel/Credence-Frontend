@@ -1,42 +1,27 @@
 import { Link } from 'react-router-dom'
+import './Home.css'
 
 export default function Home() {
   return (
-    <div>
-      <h1 style={{ marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
-        Credence — Economic Trust
-      </h1>
-      <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
+    <div className="home">
+      <div>
+        <h1 className="home__title">Credence — Economic Trust</h1>
+        <p className="home__description">
         On-chain economic identity on Stellar. Stake USDC as a programmable reputation bond.
-      </p>
-      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+        </p>
+      </div>
+      <div className="home__ctaRow">
         <Link
           to="/bond"
           role="button"
-          className="focus-visible"
-          style={{
-            padding: '0.75rem 1.25rem',
-            background: 'var(--color-primary)',
-            color: 'var(--bg-page)',
-            borderRadius: '8px',
-            fontWeight: 600,
-            textDecoration: 'none',
-          }}
+          className="home__cta home__cta--primary"
         >
           Create bond
         </Link>
         <Link
           to="/trust"
           role="button"
-          className="focus-visible"
-          style={{
-            padding: '0.75rem 1.25rem',
-            background: 'var(--border-default)',
-            color: 'var(--text-primary)',
-            borderRadius: '8px',
-            fontWeight: 600,
-            textDecoration: 'none',
-          }}
+          className="home__cta home__cta--secondary"
         >
           View trust score
         </Link>

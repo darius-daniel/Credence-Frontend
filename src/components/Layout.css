@@ -1,0 +1,50 @@
+.appShell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--credence-surface-page);
+  color: var(--credence-text-primary);
+}
+
+.appHeader {
+  padding: var(--credence-space-4) var(--credence-space-8);
+  border-bottom: 1px solid var(--credence-border-default);
+  background: var(--credence-surface-card);
+  display: flex;
+  align-items: center;
+  gap: var(--credence-space-6);
+}
+
+.appBrand {
+  font-weight: var(--credence-font-weight-bold);
+  font-size: var(--credence-font-size-xl);
+  color: var(--credence-text-primary);
+  text-decoration: none;
+}
+
+.appNav {
+  display: flex;
+  gap: var(--credence-space-4);
+  flex: 1;
+}
+
+.appMain {
+  flex: 1;
+  padding: var(--credence-space-6) var(--credence-container-padding);
+  max-width: var(--credence-container-max);
+  margin: 0 auto;
+  width: 100%;
+}
+
+.appFooterTitle {
+  font-weight: var(--credence-font-weight-semibold);
+  color: var(--credence-text-primary);
+  margin-bottom: var(--credence-space-1);
+}
+
+@media (max-width: 480px) {
+  .appHeader {
+    padding: var(--credence-space-4) var(--credence-space-4);
+  }
+}
+

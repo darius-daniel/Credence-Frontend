@@ -1,0 +1,83 @@
+.trustScore__headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--credence-space-4);
+  margin-bottom: var(--credence-space-2);
+}
+
+.trustScore__title {
+  margin: 0;
+  color: var(--credence-text-primary);
+  line-height: var(--credence-line-height-tight);
+}
+
+.trustScore__description {
+  color: var(--credence-text-secondary);
+  margin-bottom: var(--credence-space-4);
+}
+
+.trustScore__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--credence-space-8);
+  margin-top: var(--credence-space-8);
+}
+
+.trustScore__card {
+  padding: var(--credence-space-6);
+  border: 1px solid var(--credence-border-default);
+  border-radius: var(--credence-radius-xl);
+  background: var(--credence-surface-card);
+  color: var(--credence-text-primary);
+}
+
+.trustScore__cardTitle {
+  font-size: var(--credence-font-size-xl);
+  margin-bottom: var(--credence-space-4);
+}
+
+.trustScore__label {
+  display: block;
+  margin-bottom: var(--credence-space-2);
+  font-weight: var(--credence-font-weight-semibold);
+}
+
+.trustScore__input {
+  width: 100%;
+  padding: var(--credence-space-3);
+  border: 1px solid var(--credence-border-default);
+  border-radius: var(--credence-radius-lg);
+  font-size: var(--credence-font-size-base);
+  margin-bottom: var(--credence-space-4);
+  background: var(--credence-surface-page);
+  color: var(--credence-text-primary);
+}
+
+.trustScore__activityList {
+  list-style: none;
+  padding: 0;
+}
+
+.trustScore__activityRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--credence-space-3) 0;
+  border-bottom: 1px solid var(--credence-border-default);
+  gap: var(--credence-space-4);
+}
+
+.trustScore__activityRow--last {
+  border-bottom: none;
+}
+
+.trustScore__activityAction {
+  font-weight: var(--credence-font-weight-semibold);
+}
+
+.trustScore__activityDate {
+  font-size: var(--credence-font-size-xs);
+  color: var(--credence-text-secondary);
+}
+

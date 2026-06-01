@@ -1,91 +1,32 @@
 import { Outlet, Link } from 'react-router-dom'
 import ThemeToggle from './ThemeToggle'
-import LINKS from '../config/links'
-
-function FooterLink({ label, href }: { label: string; href?: string }) {
-  const isPlaceholder = !href || href === '#'
-  if (!isPlaceholder) {
-    return (
-      <a href={href} className="footer-link">
-        {label}
-      </a>
-    )
-  }
-
-  // Render as non-interactive, but still accessible to assistive tech
-  return (
-    <span
-      className="footer-link footer-link--disabled"
-      aria-disabled="true"
-      title="Coming soon"
-      tabIndex={-1}
-    >
-      {label}
-    </span>
-  )
-}
+import './Layout.css'
 
 export default function Layout() {
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        background: 'var(--bg-page)',
-        color: 'var(--text-primary)',
-      }}
-    >
+    <div className="appShell">
       <a className="skip-link" href="#main-content">
         Skip to main content
       </a>
-      <header
-        style={{
-          padding: '1rem 2rem',
-          borderBottom: '1px solid var(--border-default)',
-          background: 'var(--bg-card)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1.5rem',
-        }}
-      >
-        <Link
-          to="/"
-          style={{
-            fontWeight: 700,
-            fontSize: '1.25rem',
-            color: 'var(--text-primary)',
-            textDecoration: 'none',
-          }}
-        >
+      <header className="appHeader">
+        <Link to="/" className="appBrand">
           Credence
         </Link>
-        <nav aria-label="Main navigation" style={{ display: 'flex', gap: '1rem', flex: 1 }}>
+        <nav aria-label="Main navigation" className="appNav">
           <Link to="/bond">Bond</Link>
           <Link to="/trust">Trust Score</Link>
           <Link to="/settings">Settings</Link>
         </nav>
         <ThemeToggle />
       </header>
-      <main
-        id="main-content"
-        style={{
-          flex: 1,
-          padding: 'var(--space-6) var(--container-padding)',
-          maxWidth: 'var(--container-max)',
-          margin: '0 auto',
-          width: '100%',
-        }}
-      >
+      <main id="main-content" className="appMain">
         <Outlet />
       </main>
 
       <footer className="app-footer">
         <div className="container footer-content">
           <div>
-            <p style={{ fontWeight: 600, color: 'var(--slate-900)', marginBottom: '0.25rem' }}>
-              Credence
-            </p>
+            <p className="appFooterTitle">Credence</p>
             <p>© 2026 Credence Protocol. Built on Stellar.</p>
           </div>
           <div className="footer-links">
