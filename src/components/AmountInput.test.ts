@@ -110,11 +110,13 @@ runTests()
 
 // Export for manual testing in browser console
 if (typeof window !== 'undefined') {
-  (window as any).testAmountInput = {
-    sanitizeUSDCInput,
-    formatUSDC,
-    normalizeUSDC,
-    runTests,
-  }
+  Object.assign(window, {
+    testAmountInput: {
+      sanitizeUSDCInput,
+      formatUSDC,
+      normalizeUSDC,
+      runTests,
+    }
+  })
   console.log('Test functions available as window.testAmountInput')
 }

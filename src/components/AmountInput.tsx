@@ -105,6 +105,7 @@ export default function AmountInput({
             value={displayValue}
             inputMode="decimal"
             autoComplete="off"
+            aria-invalid={isInvalid ? 'true' : undefined}
             onFocus={handleFocus}
             onBlur={handleBlur}
             onChange={(event) => onChange(sanitizeUSDCInput(event.target.value))}
