@@ -31,6 +31,7 @@ export default defineConfig({
       reporter: ['text', 'lcov'],
       thresholds: {
         'src/components/AddressInput.tsx': { lines: 90, branches: 90 },
+        'src/components/AmountInput.tsx': { lines: 80, branches: 80 },
         'src/components/ConfirmDialog.tsx': { branches: 90 },
         'src/hooks/useFocusTrap.ts': { branches: 85 },
         'src/context/SettingsContext.tsx': { lines: 80, branches: 80 },
