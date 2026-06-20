@@ -24,7 +24,7 @@ export interface AddressInputProps {
  * Validates Stellar public key format.
  * Valid addresses: 56 characters, starts with 'G'
  */
-function isValidStellarAddress(address: string): boolean {
+export function isValidStellarAddress(address: string): boolean {
   if (!address) return false
   // Stellar addresses are 56 characters and start with 'G'
   return /^G[A-Z0-9]{55}$/.test(address)
@@ -214,7 +214,9 @@ export default function AddressInput({
       {showSuccess && value && (
         <div className="address-input-echo">
           <span className="address-input-echo-label">Recognized:</span>
-          <code className="address-input-echo-value">{truncateAddress(value)}</code>
+          <code className="address-input-echo-value">
+            {addressDisplay === 'full' ? value : truncateAddress(value)}
+          </code>
         </div>
       )}
 
