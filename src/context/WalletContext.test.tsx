@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { WalletProvider, useWallet } from './WalletContext'
+import { WalletProvider, useWalletContext } from './WalletContext'
 
 vi.mock('../hooks/useWallet', () => ({
   useWallet: () => ({
@@ -40,6 +40,6 @@ describe('WalletProvider', () => {
     )
 
     expect(screen.getByTestId('connected')).toHaveTextContent('false')
-    expect(screen.getByTestId('address')).toHaveTextContent('')
+    expect(screen.getByTestId('address')).toHaveTextContent('none')
   })
 })

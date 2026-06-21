@@ -1,12 +1,10 @@
-import { render, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import TrustScore from './TrustScore'
 import type { TrustScore as TrustScoreData } from '../api/types'
 
-const mockAddToast = vi.fn()
-let mockConnected = true
-
+const mockConnect = vi.fn()
+const mockRefetch = vi.fn()
 let mockConnected = true
 let mockTrustScoreState: {
   data: TrustScoreData | null
@@ -19,7 +17,7 @@ let mockTrustScoreState: {
 }
 
 vi.mock('../context/WalletContext', () => ({
-  useWalletContext: () => ({
+  useWallet: () => ({
     isConnected: mockConnected,
     address: mockConnected
       ? 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
@@ -36,15 +34,6 @@ vi.mock('../hooks/useTrustScore', () => ({
   useTrustScore: () => ({
     ...mockTrustScoreState,
     refetch: mockRefetch,
-  }),
-}))
-
-vi.mock('../context/WalletContext', () => ({
-  useWallet: () => ({
-    connected: mockConnected,
-    address: mockConnected ? 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' : '',
-    connect: vi.fn(),
-    disconnect: vi.fn(),
   }),
 }))
 
