@@ -230,8 +230,9 @@ export default function AddressInput({
         <div className="address-input-echo">
           <span className="address-input-echo-label">Recognized:</span>
           <code className="address-input-echo-value">
-            {formatAddressForDisplay(value, addressDisplay)}
+            {formatAddressForDisplay(value, addressDisplay as AddressDisplayMode)}
           </code>
+
         </div>
       )}
 
