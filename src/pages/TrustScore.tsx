@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import './TrustScore.css'
 import Banner from '../components/Banner'
 import Disclaimer from '../components/Disclaimer'
 import Badge from '../components/Badge'
@@ -140,24 +141,9 @@ export default function TrustScore() {
         </section>
       )}
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '2rem',
-          marginTop: '2rem',
-        }}
-      >
-        <div
-          style={{
-            padding: '1.5rem',
-            border: '1px solid var(--border-default)',
-            borderRadius: '12px',
-            background: 'var(--bg-card)',
-            color: 'var(--text-primary)',
-          }}
-        >
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Lookup Identity</h2>
+      <div className="trustScore__grid">
+        <div className="trustScore__card">
+          <h2 className="trustScore__cardTitle">Lookup Identity</h2>
           <AddressInput
             id="wallet-address"
             label="Stellar Address"
@@ -171,7 +157,7 @@ export default function TrustScore() {
               onClick={useConnectedAddress}
               variant="secondary"
               fullWidth
-              style={{ marginTop: '1rem' }}
+              className="trustScore__buttonRow"
             >
               Use connected wallet
             </Button>
@@ -182,22 +168,14 @@ export default function TrustScore() {
             variant="primary"
             fullWidth
             disabled={isConnected ? !isAddressValid : false}
-            style={{ marginTop: '1rem' }}
+            className="trustScore__buttonRow"
           >
             {isConnected ? 'Look up score' : 'Connect wallet to continue'}
           </Button>
         </div>
 
-        <div
-          style={{
-            padding: '1.5rem',
-            border: '1px solid var(--border-default)',
-            borderRadius: '12px',
-            background: 'var(--bg-card)',
-            color: 'var(--text-primary)',
-          }}
-        >
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Recent Activity</h2>
+        <div className="trustScore__card">
+          <h2 className="trustScore__cardTitle">Recent Activity</h2>
           {activity.length === 0 ? (
             <EmptyState
               illustration="activity"
@@ -205,24 +183,15 @@ export default function TrustScore() {
               description="New trust score events will appear here once bonds, attestations, or score updates occur."
             />
           ) : (
-            <ul style={{ listStyle: 'none', padding: 0 }}>
+            <ul className="trustScore__activityList">
               {activity.map((item, index) => (
                 <li
                   key={item.id}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '0.75rem 0',
-                    borderBottom:
-                      index === activity.length - 1 ? 'none' : '1px solid var(--border-default)',
-                  }}
+                  className={`trustScore__activityRow${index === activity.length - 1 ? ' trustScore__activityRow--last' : ''}`}
                 >
                   <div>
-                    <div style={{ fontWeight: 500 }}>{item.action}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                      {item.date}
-                    </div>
+                    <div className="trustScore__activityAction">{item.action}</div>
+                    <div className="trustScore__activityDate">{item.date}</div>
                   </div>
                   <Badge variant={item.status} />
                 </li>
