@@ -13,7 +13,14 @@ interface SettingsState {
   setAddressDisplay: (s: string) => void
   setToastsEnabled: (b: boolean) => void
   setAutoDismiss: (s: string) => void
-  saveSettings: () => void
+  saveSettings: (
+    overrides?: Partial<
+      Pick<
+        SettingsState,
+        'themeMode' | 'network' | 'addressDisplay' | 'toastsEnabled' | 'autoDismiss'
+      >
+    >
+  ) => void
   cancelSettings: () => void
   hasUnsavedChanges: boolean
 }
@@ -103,11 +110,32 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   }, [themeMode, network, addressDisplay, toastsEnabled, autoDismiss])
 
   // Explicit save function
-  const saveSettings = () => {
+  const saveSettings = (
+    overrides?: Partial<
+      Pick<
+        SettingsState,
+        'themeMode' | 'network' | 'addressDisplay' | 'toastsEnabled' | 'autoDismiss'
+      >
+    >
+  ) => {
     try {
-      const payload = { themeMode, network, addressDisplay, toastsEnabled, autoDismiss }
+      const payload = overrides ?? {
+        themeMode,
+        network,
+        addressDisplay,
+        toastsEnabled,
+        autoDismiss,
+      }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
-      setOriginalSettings({ themeMode, network, addressDisplay, toastsEnabled, autoDismiss })
+      setOriginalSettings(
+        payload as {
+          themeMode: ThemeMode
+          network: string
+          addressDisplay: string
+          toastsEnabled: boolean
+          autoDismiss: string
+        }
+      )
     } catch {
       // ignore
     }
