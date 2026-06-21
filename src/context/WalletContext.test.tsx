@@ -15,13 +15,13 @@ vi.mock('../hooks/useWallet', () => ({
 }))
 
 function WalletConsumer() {
-  const wallet = useWallet()
+  const wallet = useWalletContext()
 
   return (
     <div>
-      <span data-testid="connected">{String(wallet.connected)}</span>
-      <span data-testid="address">{wallet.address ?? 'none'}</span>
-      <button type="button" onClick={wallet.connect}>
+      <span data-testid="connected">{String(wallet.isConnected)}</span>
+      <span data-testid="address">{wallet.address || 'none'}</span>
+      <button type="button" onClick={() => void wallet.connect()}>
         connect
       </button>
       <button type="button" onClick={wallet.disconnect}>

@@ -15,11 +15,14 @@ vi.mock('../components/ToastProvider', () => ({
 }))
 
 vi.mock('../context/WalletContext', () => ({
-  useWallet: () => ({
-    connected: mockConnected,
-    address: mockConnected ? 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' : null,
+  useWalletContext: () => ({
+    isConnected: mockConnected,
+    address: mockConnected ? 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' : '',
     connect: mockConnect,
     disconnect: vi.fn(),
+    isConnecting: false,
+    error: null,
+    network: 'public',
   }),
 }))
 

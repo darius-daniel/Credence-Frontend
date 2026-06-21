@@ -204,6 +204,7 @@ function SettingsConsumer() {
       <button onClick={() => s.setAddressDisplay('full')}>set full</button>
       <button onClick={() => s.setToastsEnabled(false)}>disable toasts</button>
       <button onClick={() => s.setAutoDismiss('3s')}>set 3s</button>
+      <button onClick={() => s.saveSettings()}>save</button>
     </div>
   )
 }
@@ -215,13 +216,13 @@ function renderWithProvider(initialStorage?: Record<string, unknown>) {
   return render(
     <SettingsProvider>
       <SettingsConsumer />
-    </SettingsProvider>
+    </SettingsProvider>,
   )
 }
 
 beforeEach(() => {
   localStorage.clear()
-  // minimal matchMedia stub
+  document.documentElement.removeAttribute('data-theme')
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
     value: vi.fn().mockImplementation((query: string) => ({
@@ -251,7 +252,13 @@ describe('SettingsProvider', () => {
     })
 
     it('hydrates state from existing localStorage entry', () => {
-      renderWithProvider({ themeMode: 'dark', network: 'test', addressDisplay: 'full', toastsEnabled: false, autoDismiss: '3s' })
+      renderWithProvider({
+        themeMode: 'dark',
+        network: 'test',
+        addressDisplay: 'full',
+        toastsEnabled: false,
+        autoDismiss: '3s',
+      })
       expect(screen.getByTestId('theme').textContent).toBe('dark')
       expect(screen.getByTestId('network').textContent).toBe('test')
       expect(screen.getByTestId('address').textContent).toBe('full')
@@ -261,7 +268,11 @@ describe('SettingsProvider', () => {
 
     it('falls back to defaults when localStorage contains invalid JSON', () => {
       localStorage.setItem(STORAGE_KEY, 'not-valid-json')
-      render(<SettingsProvider><SettingsConsumer /></SettingsProvider>)
+      render(
+        <SettingsProvider>
+          <SettingsConsumer />
+        </SettingsProvider>,
+      )
       expect(screen.getByTestId('theme').textContent).toBe('system')
     })
   })
@@ -315,6 +326,22 @@ describe('SettingsProvider', () => {
       expect(stored.toastsEnabled).toBe(true)
     })
 
+    it('persists full payload when saveSettings is called after changes', async () => {
+      const user = userEvent.setup()
+      renderWithProvider()
+      await user.click(screen.getByRole('button', { name: 'set dark' }))
+      await user.click(screen.getByRole('button', { name: 'save' }))
+
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')
+      expect(stored).toEqual({
+        themeMode: 'dark',
+        network: 'public',
+        addressDisplay: 'short',
+        toastsEnabled: true,
+        autoDismiss: '5s',
+      })
+    })
+
     it('persists toastsEnabled=false', async () => {
       const user = userEvent.setup()
       renderWithProvider()
@@ -348,19 +375,19 @@ describe('SettingsProvider', () => {
     })
 
     it('resolves system theme via matchMedia', () => {
-      // matchMedia stub returns matches:false → light
       renderWithProvider({ themeMode: 'system' })
       expect(document.documentElement.getAttribute('data-theme')).toBe('light')
     })
 
     it('re-applies theme when prefers-color-scheme changes while themeMode is system', () => {
-      // Use an object ref so TypeScript doesn't narrow the captured handler to null
       const captured: { handler: (() => void) | null } = { handler: null }
       const mql = {
         matches: false,
         media: '(prefers-color-scheme: dark)',
         onchange: null,
-        addEventListener: vi.fn((_: string, fn: () => void) => { captured.handler = fn }),
+        addEventListener: vi.fn((_: string, fn: () => void) => {
+          captured.handler = fn
+        }),
         removeEventListener: vi.fn(),
         dispatchEvent: vi.fn(),
       }
@@ -369,15 +396,36 @@ describe('SettingsProvider', () => {
       renderWithProvider({ themeMode: 'system' })
       expect(document.documentElement.getAttribute('data-theme')).toBe('light')
 
-      // Simulate OS switching to dark
       mql.matches = true
       captured.handler?.()
       expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
 
-      // Simulate OS switching back to light
       mql.matches = false
       captured.handler?.()
       expect(document.documentElement.getAttribute('data-theme')).toBe('light')
+    })
+
+    it('removes matchMedia listener on theme change and on unmount', async () => {
+      const mql = {
+        matches: true,
+        media: '(prefers-color-scheme: dark)',
+        onchange: null,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      }
+      window.matchMedia = vi.fn().mockReturnValue(mql)
+
+      const user = userEvent.setup()
+      const { unmount } = renderWithProvider({ themeMode: 'system' })
+
+      expect(mql.addEventListener).toHaveBeenCalled()
+
+      await user.click(screen.getByRole('button', { name: 'set dark' }))
+      expect(mql.removeEventListener).toHaveBeenCalled()
+
+      unmount()
+      expect(mql.removeEventListener).toHaveBeenCalled()
     })
   })
 
@@ -387,7 +435,7 @@ describe('SettingsProvider', () => {
       rerender(
         <SettingsProvider>
           <SettingsConsumer />
-        </SettingsProvider>
+        </SettingsProvider>,
       )
       expect(screen.getByTestId('theme').textContent).toBe('system')
     })
@@ -395,7 +443,6 @@ describe('SettingsProvider', () => {
 
   describe('useSettings outside provider returns no-op defaults', () => {
     it('returns default values when rendered without a provider', () => {
-      // SettingsContext default state has no-op setters; this verifies the import works
       render(<SettingsConsumer />)
       expect(screen.getByTestId('theme').textContent).toBe('system')
       expect(screen.getByTestId('toasts').textContent).toBe('true')
