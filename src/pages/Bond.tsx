@@ -6,11 +6,12 @@ import { useToast } from '../components/ToastProvider'
 import Badge, { type BadgeVariant } from '../components/Badge'
 import ActionCard from '../components/ActionCard'
 import Button from '../components/Button'
-import type { ConfirmDialogPenaltyBreakdown } from '../components/ConfirmDialog'
 import EmptyState from '../components/states/EmptyState'
 import { useWallet } from '../context/WalletContext'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { formatUsdc } from '../lib/format'
+import { getPenaltyRate, computeWithdrawBreakdown } from '../lib/penalty'
+import type { MockBond } from '../lib/penalty'
 
 const ConfirmDialog = lazy(() => import('../components/ConfirmDialog'))
 
@@ -223,9 +224,10 @@ export default function Bond() {
 
   const slashExposureBond = useMemo(() => bonds.find((b) => getPenaltyRate(b.status) > 0), [bonds])
 
-  const slashBannerBreakdown = slashExposureBond
-    ? computeWithdrawBreakdown(slashExposureBond)
-    : null
+  const slashBannerBreakdown = useMemo(
+    () => (slashExposureBond ? computeWithdrawBreakdown(slashExposureBond) : null),
+    [slashExposureBond]
+  )
 
   return (
     <div style={{ display: 'grid', gap: 'var(--credence-space-8)' }}>
