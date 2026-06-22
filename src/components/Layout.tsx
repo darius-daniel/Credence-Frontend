@@ -45,7 +45,9 @@ export default function Layout() {
               key={to}
               to={to}
               end
-              className={({ isActive }) => (isActive ? 'appNav-link appNav-link--active' : 'appNav-link')}
+              className={({ isActive }) =>
+                isActive ? 'appNav-link appNav-link--active' : 'appNav-link'
+              }
             >
               {label}
             </NavLink>

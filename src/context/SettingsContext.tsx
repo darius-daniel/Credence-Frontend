@@ -102,6 +102,18 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     }
   }, [themeMode, network, addressDisplay, toastsEnabled, autoDismiss])
 
+  // One-time migration: the legacy ThemeToggle persisted theme under a separate
+  // 'theme' key. Its value (if any) seeds `themeMode` above and is folded into
+  // credence:settings by the persist effect; here we drop the orphan key so the
+  // theme has exactly one source of truth.
+  useEffect(() => {
+    try {
+      localStorage.removeItem(LEGACY_THEME_KEY)
+    } catch {
+      // ignore
+    }
+  }, [])
+
   // Explicit save function
   const saveSettings = () => {
     try {

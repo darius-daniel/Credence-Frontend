@@ -74,3 +74,19 @@ The theme has exactly **one** owner: `SettingsContext` (`src/context/SettingsCon
 
 This removes the historical desync where the toggle kept its own state under a
 duplicate `'theme'` key while the document was driven by `credence:settings`.
+
+### Legacy `'theme'` key migration
+
+Older builds of `ThemeToggle` persisted the theme under a standalone `'theme'`
+localStorage key. On first load, `SettingsContext` performs a **one-time
+migration** so returning users keep their preference:
+
+- If `credence:settings` already carries a `themeMode`, it wins (the single
+  source of truth) and the legacy value is discarded.
+- Otherwise, a valid legacy `'theme'` value (`'light' | 'dark' | 'system'`)
+  seeds `themeMode`; invalid values are ignored and fall back to `'system'`.
+- The migrated value is folded into `credence:settings`, and the orphan
+  `'theme'` key is removed on mount.
+
+The migration is transparent: it does not register as an unsaved change on the
+Settings page.

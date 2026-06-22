@@ -66,10 +66,22 @@ The link variable intent and legal handoff notes are also tracked in `docs/foote
 - Vite
 - React Router
 
+## Documentation
+
+See the [docs/](docs/) directory for detailed project documentation, including:
+- [Architecture Overview](docs/ARCHITECTURE.md) — Runtime structure, provider tree, and data flow seams.
+
 ## Project layout
 
 - `src/pages/` — Home, Bond, Trust Score
-- `src/components/` — Layout, shared UI
+- `src/components/` — Layout, shared UI; see the [shared components catalog](docs/COMPONENTS.md) for props, accessibility notes, styling ownership, and token usage
 - `src/App.tsx` — Router and routes
+
+### Bond flow routes
+
+| Route       | Component            | Description                                                                                                               |
+| ----------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `/bond`     | `Bond.tsx`           | Overview page — lists active bonds and provides an entry into the creation wizard                                         |
+| `/bond/new` | `CreateBondPage.tsx` | Four-step bond-creation wizard (amount → duration → review → confirm). Navigates back to `/bond` on completion or cancel. |
 
 To add wallet (e.g. Freighter) and contract calls, extend the Bond and Trust Score pages and add a small API client in `src/api/`.

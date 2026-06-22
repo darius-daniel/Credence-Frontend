@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import './TrustScore.css'
 import Banner from '../components/Banner'
 import Disclaimer from '../components/Disclaimer'
 import Badge from '../components/Badge'
 import Button from '../components/Button'
-import AddressInput from '../components/AddressInput'
+import AddressInput, { isValidStellarAddress } from '../components/AddressInput'
 import TierLadder from '../components/TierLadder'
 import TrustGauge, { TIER_CONFIG } from '../components/TrustGauge'
 import { EmptyState, ErrorState, LoadingSkeleton } from '../components/states'
@@ -29,7 +31,11 @@ export default function TrustScore() {
   useDocumentTitle('Trust Score')
 
   const { isConnected, address: walletAddress, connect } = useWallet()
-  const [address, setAddress] = useState('')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [address, setAddress] = useState<string>(() => {
+    const param = searchParams.get('address')?.trim() ?? ''
+    return isValidStellarAddress(param) ? param : ''
+  })
   const [isAddressValid, setIsAddressValid] = useState(false)
   const [hasAttemptedLookup, setHasAttemptedLookup] = useState(false)
   const [lookupAddress, setLookupAddress] = useState('')
@@ -45,6 +51,28 @@ export default function TrustScore() {
     refetch()
   }, [lookupAddress, refetch])
 
+  const commitAddressParam = (value: string) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        if (value) {
+          next.set('address', value)
+        } else {
+          next.delete('address')
+        }
+        return next
+      },
+      { replace: true },
+    )
+  }
+
+  const handleAddressChange = (value: string) => {
+    setAddress(value)
+    if (!value) {
+      commitAddressParam('')
+    }
+  }
+
   const handleLookup = () => {
     if (!isConnected) {
       void connect()
@@ -57,7 +85,9 @@ export default function TrustScore() {
 
     setHasAttemptedLookup(true)
     pendingLookupRef.current = true
-    setLookupAddress(address.trim())
+    const trimmed = address.trim()
+    setLookupAddress(trimmed)
+    commitAddressParam(trimmed)
   }
 
   const useConnectedAddress = () => {
@@ -65,8 +95,12 @@ export default function TrustScore() {
     setAddress(walletAddress)
   }
 
-  const activity: Array<{ id: number; action: string; date: string; status: 'active' | 'slashed' }> =
-    []
+  const activity: Array<{
+    id: number
+    action: string
+    date: string
+    status: 'active' | 'slashed'
+  }> = []
 
   const tierLabel = data ? `${TIER_CONFIG[data.tier].label} Tier` : undefined
 
@@ -98,21 +132,13 @@ export default function TrustScore() {
       )}
 
       {hasAttemptedLookup && (
-        <section
-          aria-labelledby="trust-score-results-heading"
-          style={{ marginTop: '2rem' }}
-        >
+        <section aria-labelledby="trust-score-results-heading" className="trustScore__results">
           <h2 id="trust-score-results-heading" className="sr-only">
             Trust score results
           </h2>
 
           {isLoading && (
-            <div
-              role="status"
-              aria-live="polite"
-              aria-busy="true"
-              aria-label="Loading trust score"
-            >
+            <div role="status" aria-live="polite" aria-busy="true" aria-label="Loading trust score">
               <p className="sr-only">Loading trust score…</p>
               <LoadingSkeleton variant="card" />
             </div>
@@ -132,7 +158,7 @@ export default function TrustScore() {
           {!isLoading && !error && data && lookupAddress === address.trim() && (
             <div>
               <TrustGauge score={data.score} tier={data.tier} />
-              <div style={{ marginTop: '1rem' }}>
+              <div className="trustScore__tierBadge">
                 <Badge variant={data.tier} label={tierLabel} />
               </div>
             </div>
@@ -140,29 +166,14 @@ export default function TrustScore() {
         </section>
       )}
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '2rem',
-          marginTop: '2rem',
-        }}
-      >
-        <div
-          style={{
-            padding: '1.5rem',
-            border: '1px solid var(--border-default)',
-            borderRadius: '12px',
-            background: 'var(--bg-card)',
-            color: 'var(--text-primary)',
-          }}
-        >
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Lookup Identity</h2>
+      <div className="trustScore__grid">
+        <div className="trustScore__card">
+          <h2 className="trustScore__cardTitle">Lookup Identity</h2>
           <AddressInput
             id="wallet-address"
             label="Stellar Address"
             value={address}
-            onChange={setAddress}
+            onChange={handleAddressChange}
             onValidationChange={setIsAddressValid}
           />
           {isConnected && walletAddress && (
@@ -171,7 +182,7 @@ export default function TrustScore() {
               onClick={useConnectedAddress}
               variant="secondary"
               fullWidth
-              style={{ marginTop: '1rem' }}
+              className="trustScore__buttonRow"
             >
               Use connected wallet
             </Button>
@@ -182,22 +193,14 @@ export default function TrustScore() {
             variant="primary"
             fullWidth
             disabled={isConnected ? !isAddressValid : false}
-            style={{ marginTop: '1rem' }}
+            className="trustScore__buttonRow"
           >
             {isConnected ? 'Look up score' : 'Connect wallet to continue'}
           </Button>
         </div>
 
-        <div
-          style={{
-            padding: '1.5rem',
-            border: '1px solid var(--border-default)',
-            borderRadius: '12px',
-            background: 'var(--bg-card)',
-            color: 'var(--text-primary)',
-          }}
-        >
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Recent Activity</h2>
+        <div className="trustScore__card">
+          <h2 className="trustScore__cardTitle">Recent Activity</h2>
           {activity.length === 0 ? (
             <EmptyState
               illustration="activity"
@@ -205,24 +208,15 @@ export default function TrustScore() {
               description="New trust score events will appear here once bonds, attestations, or score updates occur."
             />
           ) : (
-            <ul style={{ listStyle: 'none', padding: 0 }}>
+            <ul className="trustScore__activityList">
               {activity.map((item, index) => (
                 <li
                   key={item.id}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '0.75rem 0',
-                    borderBottom:
-                      index === activity.length - 1 ? 'none' : '1px solid var(--border-default)',
-                  }}
+                  className={`trustScore__activityRow${index === activity.length - 1 ? ' trustScore__activityRow--last' : ''}`}
                 >
                   <div>
-                    <div style={{ fontWeight: 500 }}>{item.action}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                      {item.date}
-                    </div>
+                    <div className="trustScore__activityAction">{item.action}</div>
+                    <div className="trustScore__activityDate">{item.date}</div>
                   </div>
                   <Badge variant={item.status} />
                 </li>

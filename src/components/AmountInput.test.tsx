@@ -146,4 +146,82 @@ describe('AmountInput', () => {
       expect(wrapper).toHaveAttribute('data-invalid', 'true')
     })
   })
+
+  describe('over-balance validation', () => {
+    it('shows inline error when value exceeds balance', () => {
+      renderInput({ value: '150.00', balance: 100 })
+      expect(screen.getByRole('alert')).toHaveTextContent('Amount exceeds available balance.')
+    })
+
+    it('does not show an error when value equals balance', () => {
+      renderInput({ value: '100.00', balance: 100 })
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    })
+
+    it('does not show an error when value is below balance', () => {
+      renderInput({ value: '50.00', balance: 100 })
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    })
+
+    it('does not show an error when value is empty', () => {
+      renderInput({ value: '', balance: 100 })
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    })
+
+    it('marks the input aria-invalid when over balance', () => {
+      renderInput({ value: '999.00', balance: 100 })
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('links the error to the input via aria-describedby', () => {
+      renderInput({ value: '200.00', balance: 100 })
+      const input = screen.getByRole('textbox')
+      const errorId = input.getAttribute('aria-describedby')
+      expect(errorId).toBeTruthy()
+      expect(document.getElementById(errorId!)).toHaveTextContent('Amount exceeds available balance.')
+    })
+
+    it('explicit error prop overrides the internal over-balance error', () => {
+      renderInput({ value: '200.00', balance: 100, error: 'Custom error message' })
+      expect(screen.getByRole('alert')).toHaveTextContent('Custom error message')
+      expect(screen.queryByText('Amount exceeds available balance.')).not.toBeInTheDocument()
+    })
+
+    it('shows explicit error even when value is within balance', () => {
+      renderInput({ value: '50.00', balance: 100, error: 'Server-side error' })
+      expect(screen.getByRole('alert')).toHaveTextContent('Server-side error')
+    })
+
+    it('balance of 0 disables Max but still validates typed over-balance', () => {
+      renderInput({ value: '1.00', balance: 0 })
+      expect(screen.getByRole('button', { name: /set max amount/i })).toBeDisabled()
+      expect(screen.getByRole('alert')).toHaveTextContent('Amount exceeds available balance.')
+    })
+  })
+
+  describe('onValidityChange callback', () => {
+    it('calls onValidityChange(false) when value exceeds balance', () => {
+      const onValidityChange = vi.fn()
+      renderInput({ value: '200.00', balance: 100, onValidityChange })
+      expect(onValidityChange).toHaveBeenCalledWith(false)
+    })
+
+    it('calls onValidityChange(true) when value is within balance', () => {
+      const onValidityChange = vi.fn()
+      renderInput({ value: '50.00', balance: 100, onValidityChange })
+      expect(onValidityChange).toHaveBeenCalledWith(true)
+    })
+
+    it('calls onValidityChange(true) when value exactly equals balance', () => {
+      const onValidityChange = vi.fn()
+      renderInput({ value: '100.00', balance: 100, onValidityChange })
+      expect(onValidityChange).toHaveBeenCalledWith(true)
+    })
+
+    it('calls onValidityChange(true) when value is empty', () => {
+      const onValidityChange = vi.fn()
+      renderInput({ value: '', balance: 100, onValidityChange })
+      expect(onValidityChange).toHaveBeenCalledWith(true)
+    })
+  })
 })

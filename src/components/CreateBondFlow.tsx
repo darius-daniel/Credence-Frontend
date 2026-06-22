@@ -1,6 +1,7 @@
 /**
  * @file CreateBondFlow.tsx
  * @description Multi-step wizard for creating a USDC bond on the Credence protocol.
+ * Mounted at `/bond/new` via `CreateBondPage` (see `src/pages/CreateBondPage.tsx`).
  *
  * Step 1 – Enter bond amount (USDC)
  * Step 2 – Choose lock duration (30 / 90 / 180 days)
@@ -14,12 +15,16 @@
  */
 
 import { useMemo, useState, useRef, useEffect } from 'react'
+import AmountInput from './AmountInput'
 import { FormField } from './forms/FormField'
 import Button from './Button'
 import Banner from './Banner'
 import Disclaimer from './Disclaimer'
 import { useToast } from './ToastProvider'
 import { computeBondSlashBreakdown } from '../lib/bondPenalty'
+import { useReducedMotion } from '../hooks/useReducedMotion'
+
+import './CreateBondFlow.css'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -40,21 +45,21 @@ const calcUnlockDate = (days: number) => {
 // ---------------------------------------------------------------------------
 // Divider used between review card sections
 // ---------------------------------------------------------------------------
-const ReviewDivider = () => (
-  <div
-    style={{
-      height: '1px',
-      background: 'var(--border-default)',
-      margin: '0 calc(-1 * var(--credence-space-1))',
-    }}
-  />
-)
+const ReviewDivider = () => <div className="createBondFlow__reviewDivider" />
 
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
-export default function CreateBondFlow() {
+interface CreateBondFlowProps {
+  /** Called after the success toast fires. When provided, replaces the default reset-to-step-1 behaviour. */
+  onComplete?: () => void
+  /** Called when the Cancel button is clicked. When provided, replaces the default reset-to-step-1 behaviour. */
+  onCancel?: () => void
+}
+
+export default function CreateBondFlow({ onComplete, onCancel }: CreateBondFlowProps = {}) {
+  const prefersReducedMotion = useReducedMotion()
   const { addToast } = useToast()
   const [step, setStep] = useState(1)
   const [amount, setAmount] = useState('')
@@ -82,6 +87,7 @@ export default function CreateBondFlow() {
     setAcknowledged(false)
   }
 
+
   const handleNext = () => {
     if (step === 1) {
       if (!amount || Number(amount) <= 0) {
@@ -106,7 +112,11 @@ export default function CreateBondFlow() {
 
   const handleConfirm = () => {
     addToast('success', 'Bond created successfully.')
-    reset()
+    if (onComplete) {
+      onComplete()
+    } else {
+      reset()
+    }
   }
 
   /**
@@ -127,7 +137,11 @@ export default function CreateBondFlow() {
   // ---------------------------------------------------------------------------
   const StepIndicator = () => (
     <div
-      style={{ display: 'flex', gap: 'var(--credence-space-2)', marginBottom: 'var(--credence-space-4)' }}
+      style={{
+        display: 'flex',
+        gap: 'var(--credence-space-2)',
+        marginBottom: 'var(--credence-space-4)',
+      }}
       aria-label={`Step ${step} of 4`}
     >
       {[1, 2, 3, 4].map((i) => (
@@ -138,7 +152,7 @@ export default function CreateBondFlow() {
             height: '4px',
             borderRadius: 'var(--credence-radius-full)',
             background: i <= step ? 'var(--color-primary)' : 'var(--border-default)',
-            transition: 'background 0.2s ease',
+            transition: prefersReducedMotion ? 'none' : 'background 0.2s ease',
           }}
         />
       ))}
@@ -149,39 +163,34 @@ export default function CreateBondFlow() {
   // Render
   // ---------------------------------------------------------------------------
   return (
-    <div style={{ display: 'grid', gap: 'var(--credence-space-6)' }}>
+    <div className="createBondFlow">
       <StepIndicator />
 
       {/* ── Step 1: Amount ── */}
       {step === 1 && (
         <div style={{ display: 'grid', gap: 'var(--credence-space-4)' }}>
-          <h2 ref={step1Ref} tabIndex={-1} style={{ outline: 'none', color: 'var(--text-primary)' }}>
+          <h2
+            ref={step1Ref}
+            tabIndex={-1}
+            style={{ outline: 'none', color: 'var(--text-primary)' }}
+          >
             Step 1: Enter Bond Amount
           </h2>
+
           <Banner severity="info">
             Bonds are locked for a minimum of 30 days. Early withdrawal incurs a slash penalty.
           </Banner>
           <FormField id="bond-amount" label="Amount (USDC)" error={error}>
-            <input
-              type="number"
+            <AmountInput
               value={amount}
-              onChange={(e) => {
-                setAmount(e.target.value)
+              onChange={(next) => {
+                setAmount(next)
                 if (error) setError('')
               }}
+              balance={100000}
               placeholder="0"
-              min="0"
-              step="1"
-              className="focus-visible"
-              style={{
-                width: '100%',
-                padding: 'var(--credence-space-3) var(--credence-space-4)',
-                border: '1px solid var(--border-default)',
-                borderRadius: 'var(--credence-radius-lg)',
-                fontSize: 'var(--credence-font-size-base)',
-                background: 'var(--bg-page)',
-                color: 'var(--text-primary)',
-              }}
+              presets={[30, 90, 180]}
+              currencyLabel="USDC"
             />
           </FormField>
         </div>
@@ -190,18 +199,30 @@ export default function CreateBondFlow() {
       {/* ── Step 2: Duration ── */}
       {step === 2 && (
         <div style={{ display: 'grid', gap: 'var(--credence-space-4)' }}>
-          <h2 ref={step2Ref} tabIndex={-1} style={{ outline: 'none', color: 'var(--text-primary)' }}>
+          <h2
+            ref={step2Ref}
+            tabIndex={-1}
+            style={{ outline: 'none', color: 'var(--text-primary)' }}
+          >
             Step 2: Choose Lock Duration
           </h2>
-          <p style={{ color: 'var(--text-secondary)' }}>Select how long you want to lock your USDC:</p>
+          <p style={{ color: 'var(--text-secondary)' }}>
+            Select how long you want to lock your USDC:
+          </p>
 
           {error && (
-            <div role="alert" style={{ color: 'var(--color-danger)', fontWeight: 'var(--credence-font-weight-semibold)' }}>
+            <div
+              role="alert"
+              style={{
+                color: 'var(--color-danger)',
+                fontWeight: 'var(--credence-font-weight-semibold)',
+              }}
+            >
               ⚠ {error}
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: 'var(--credence-space-3)' }}>
+          <div style={{ display: 'flex', gap: 'var(--credence-space-3)', flexWrap: 'wrap' }}>
             {[30, 90, 180].map((d) => (
               <Button
                 key={d}
@@ -219,7 +240,7 @@ export default function CreateBondFlow() {
                   borderRadius: 'var(--credence-radius-lg)',
                   fontWeight: 'var(--credence-font-weight-semibold)',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
+                  transition: prefersReducedMotion ? 'none' : 'all 0.2s ease',
                 }}
               >
                 {d} Days
@@ -232,9 +253,14 @@ export default function CreateBondFlow() {
       {/* ── Step 3: Review Terms ── */}
       {step === 3 && (
         <div style={{ display: 'grid', gap: 'var(--credence-space-4)' }}>
-          <h2 ref={step3Ref} tabIndex={-1} style={{ outline: 'none', color: 'var(--text-primary)' }}>
+          <h2
+            ref={step3Ref}
+            tabIndex={-1}
+            style={{ outline: 'none', color: 'var(--text-primary)' }}
+          >
             Step 3: Review Terms
           </h2>
+
 
           <Banner severity="warning" title="Early withdrawal — slash exposure">
             Withdrawing before lock maturity incurs a slash penalty on your principal. The figures
@@ -242,16 +268,7 @@ export default function CreateBondFlow() {
           </Banner>
 
           {/* ── Bond summary card ── */}
-          <div
-            style={{
-              padding: 'var(--credence-space-4)',
-              border: '1px solid var(--border-default)',
-              borderRadius: 'var(--credence-radius-lg)',
-              background: 'var(--bg-page)',
-              display: 'grid',
-              gap: 'var(--credence-space-3)',
-            }}
-          >
+          <div className="createBondFlow__reviewCard">
             {/* Bond amount */}
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Bond Amount:</span>
@@ -280,23 +297,15 @@ export default function CreateBondFlow() {
 
             {/* ── Early-withdrawal slash section ── */}
             <div style={{ display: 'grid', gap: 'var(--credence-space-1)' }}>
-              <span
-                style={{
-                  fontSize: 'var(--credence-font-size-sm)',
-                  fontWeight: 'var(--credence-font-weight-semibold)',
-                  color: 'var(--text-secondary)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                }}
-              >
-                If you withdraw early
-              </span>
+              <span className="createBondFlow__reviewBadgeLabel">If you withdraw early</span>
             </div>
 
             {slashBreakdown ? (
               <>
                 {/* Slash penalty % + amount */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                >
                   <span style={{ color: 'var(--text-secondary)' }}>
                     Slash Penalty ({slashBreakdown.penaltyPercent}%):
                   </span>
@@ -320,9 +329,15 @@ export default function CreateBondFlow() {
                     border: '1px solid var(--border-default)',
                   }}
                 >
-                  <span style={{ color: 'var(--text-secondary)', fontWeight: 'var(--credence-font-weight-semibold)' }}>
+                  <span
+                    style={{
+                      color: 'var(--text-secondary)',
+                      fontWeight: 'var(--credence-font-weight-semibold)',
+                    }}
+                  >
                     You would receive:
                   </span>
+
                   <strong
                     style={{
                       color:
@@ -351,28 +366,23 @@ export default function CreateBondFlow() {
       {/* ── Step 4: Confirm ── */}
       {step === 4 && (
         <div style={{ display: 'grid', gap: 'var(--credence-space-4)' }}>
-          <h2 ref={step4Ref} tabIndex={-1} style={{ outline: 'none', color: 'var(--text-primary)' }}>
+          <h2
+            ref={step4Ref}
+            tabIndex={-1}
+            style={{ outline: 'none', color: 'var(--text-primary)' }}
+          >
             Step 4: Confirm Bond
           </h2>
+
           <Disclaimer
             context="Bonding USDC locks funds in a non-custodial smart contract. Slashing conditions apply."
             termsHref="#"
           />
-          <label
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--credence-space-2)',
-              cursor: 'pointer',
-              color: 'var(--text-primary)',
-              marginTop: 'var(--credence-space-2)',
-            }}
-          >
+          <label className="createBondFlow__ackLabel">
             <input
               type="checkbox"
               checked={acknowledged}
               onChange={(e) => setAcknowledged(e.target.checked)}
-              style={{ width: '1.2rem', height: '1.2rem', cursor: 'pointer' }}
             />
             <span>I explicitly acknowledge the slashing terms and lock conditions.</span>
           </label>
@@ -380,38 +390,28 @@ export default function CreateBondFlow() {
       )}
 
       {/* ── Navigation ── */}
-      <div style={{ display: 'flex', gap: 'var(--credence-space-3)', marginTop: 'var(--credence-space-4)' }}>
+      <div
+        style={{
+          display: 'flex',
+          gap: 'var(--credence-space-3)',
+          marginTop: 'var(--credence-space-4)',
+        }}
+      >
         {step > 1 && (
           <Button
             type="button"
             onClick={handleBack}
-            style={{
-              flex: 1,
-              padding: 'var(--credence-space-3)',
-              background: 'transparent',
-              color: 'var(--text-primary)',
-              border: '1px solid var(--border-default)',
-              borderRadius: 'var(--credence-radius-lg)',
-              cursor: 'pointer',
-            }}
+            className="createBondFlow__navButton createBondFlow__backButton"
           >
             Back
           </Button>
         )}
+
         {step < 4 ? (
           <Button
             type="button"
             onClick={handleNext}
-            style={{
-              flex: 1,
-              padding: 'var(--credence-space-3)',
-              background: 'var(--color-primary)',
-              color: 'var(--bg-page)',
-              border: 'none',
-              borderRadius: 'var(--credence-radius-lg)',
-              fontWeight: 'var(--credence-font-weight-semibold)',
-              cursor: 'pointer',
-            }}
+            className="createBondFlow__navButton createBondFlow__nextButton"
           >
             Next
           </Button>
@@ -420,23 +420,15 @@ export default function CreateBondFlow() {
             type="button"
             onClick={handleConfirm}
             disabled={!acknowledged}
-            style={{
-              flex: 1,
-              padding: 'var(--credence-space-3)',
-              background: acknowledged ? 'var(--color-primary)' : 'var(--border-default)',
-              color: acknowledged ? 'var(--bg-page)' : 'var(--text-secondary)',
-              border: 'none',
-              borderRadius: 'var(--credence-radius-lg)',
-              fontWeight: 'var(--credence-font-weight-semibold)',
-              cursor: acknowledged ? 'pointer' : 'not-allowed',
-            }}
+            className="createBondFlow__navButton createBondFlow__confirmButton"
           >
             Confirm & Create Bond
           </Button>
         )}
+
         <Button
           type="button"
-          onClick={reset}
+          onClick={onCancel ?? reset}
           style={{
             padding: 'var(--credence-space-3) var(--credence-space-4)',
             background: 'var(--bg-page)',

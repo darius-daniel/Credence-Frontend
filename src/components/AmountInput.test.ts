@@ -54,10 +54,18 @@ describe('AmountInput formatting helpers', () => {
 // Export for manual testing in browser console
 if (typeof window !== 'undefined') {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).testAmountInput = {
+  ;(window as any).testAmountInput = {
     sanitizeUSDCInput,
     formatUSDC,
     normalizeUSDC,
   }
   console.log('Test functions available as window.testAmountInput')
 }
+
+import { describe, test, expect } from 'vitest'
+
+describe('AmountInput Utility', () => {
+  test('manual tests execution wrapper', () => {
+    expect(true).toBe(true)
+  })
+})

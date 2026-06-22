@@ -9,13 +9,15 @@ type MatchMediaListener = (event: { matches: boolean }) => void
 function StateDump() {
   const s = useSettings()
   return (
-    <pre data-testid="state">{JSON.stringify({
-      themeMode: s.themeMode,
-      network: s.network,
-      addressDisplay: s.addressDisplay,
-      toastsEnabled: s.toastsEnabled,
-      autoDismiss: s.autoDismiss,
-    })}</pre>
+    <pre data-testid="state">
+      {JSON.stringify({
+        themeMode: s.themeMode,
+        network: s.network,
+        addressDisplay: s.addressDisplay,
+        toastsEnabled: s.toastsEnabled,
+        autoDismiss: s.autoDismiss,
+      })}
+    </pre>
   )
 }
 
@@ -72,7 +74,7 @@ describe('SettingsContext persistence & theme application', () => {
     render(
       <SettingsProvider>
         <StateDump />
-      </SettingsProvider>,
+      </SettingsProvider>
     )
 
     const state = JSON.parse(screen.getByTestId('state').textContent || '{}')
@@ -103,7 +105,7 @@ describe('SettingsContext persistence & theme application', () => {
     render(
       <SettingsProvider>
         <StateDump />
-      </SettingsProvider>,
+      </SettingsProvider>
     )
 
     const state = JSON.parse(screen.getByTestId('state').textContent || '{}')
@@ -120,8 +122,8 @@ describe('SettingsContext persistence & theme application', () => {
       render(
         <SettingsProvider>
           <StateDump />
-        </SettingsProvider>,
-      ),
+        </SettingsProvider>
+      )
     ).not.toThrow()
 
     const state = JSON.parse(screen.getByTestId('state').textContent || '{}')
@@ -134,7 +136,7 @@ describe('SettingsContext persistence & theme application', () => {
     render(
       <SettingsProvider>
         <Controls />
-      </SettingsProvider>,
+      </SettingsProvider>
     )
 
     fireEvent.click(screen.getByTestId('set-dark'))
@@ -158,7 +160,7 @@ describe('SettingsContext persistence & theme application', () => {
     render(
       <SettingsProvider>
         <StateDump />
-      </SettingsProvider>,
+      </SettingsProvider>
     )
 
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
@@ -174,7 +176,7 @@ describe('SettingsContext persistence & theme application', () => {
     const { unmount } = render(
       <SettingsProvider>
         <Controls />
-      </SettingsProvider>,
+      </SettingsProvider>
     )
 
     // initial effect should have added listener
@@ -216,7 +218,7 @@ function renderWithProvider(initialStorage?: Record<string, unknown>) {
   return render(
     <SettingsProvider>
       <SettingsConsumer />
-    </SettingsProvider>,
+    </SettingsProvider>
   )
 }
 
@@ -271,7 +273,7 @@ describe('SettingsProvider', () => {
       render(
         <SettingsProvider>
           <SettingsConsumer />
-        </SettingsProvider>,
+        </SettingsProvider>
       )
       expect(screen.getByTestId('theme').textContent).toBe('system')
     })
@@ -435,7 +437,7 @@ describe('SettingsProvider', () => {
       rerender(
         <SettingsProvider>
           <SettingsConsumer />
-        </SettingsProvider>,
+        </SettingsProvider>
       )
       expect(screen.getByTestId('theme').textContent).toBe('system')
     })
@@ -448,4 +450,67 @@ describe('SettingsProvider', () => {
       expect(screen.getByTestId('toasts').textContent).toBe('true')
     })
   })
+
+  describe("legacy 'theme' key migration", () => {
+    it("adopts a valid legacy 'theme' value into themeMode and removes the key", () => {
+      localStorage.setItem('theme', 'dark')
+
+      renderWithProvider()
+
+      expect(screen.getByTestId('theme').textContent).toBe('dark')
+      // orphan key retired
+      expect(localStorage.getItem('theme')).toBeNull()
+      // migrated value folded into the single source of truth
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')
+      expect(stored.themeMode).toBe('dark')
+    })
+
+    it("lets credence:settings win over a conflicting legacy 'theme' value", () => {
+      localStorage.setItem('theme', 'dark')
+
+      renderWithProvider({
+        themeMode: 'light',
+        network: 'public',
+        addressDisplay: 'short',
+        toastsEnabled: true,
+        autoDismiss: '5s',
+      })
+
+      // single source of truth wins; legacy key is still cleaned up
+      expect(screen.getByTestId('theme').textContent).toBe('light')
+      expect(localStorage.getItem('theme')).toBeNull()
+    })
+
+    it("ignores an invalid legacy 'theme' value and falls back to default", () => {
+      localStorage.setItem('theme', 'neon')
+
+      renderWithProvider()
+
+      expect(screen.getByTestId('theme').textContent).toBe('system')
+      expect(localStorage.getItem('theme')).toBeNull()
+    })
+
+    it('does not show migrated theme as an unsaved change', () => {
+      localStorage.setItem('theme', 'dark')
+
+      render(
+        <SettingsProvider>
+          <UnsavedProbe />
+        </SettingsProvider>,
+      )
+
+      expect(screen.getByTestId('theme').textContent).toBe('dark')
+      expect(screen.getByTestId('unsaved').textContent).toBe('false')
+    })
+  })
 })
+
+function UnsavedProbe() {
+  const s = useSettings()
+  return (
+    <div>
+      <span data-testid="theme">{s.themeMode}</span>
+      <span data-testid="unsaved">{String(s.hasUnsavedChanges)}</span>
+    </div>
+  )
+}
