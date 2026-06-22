@@ -21,6 +21,7 @@ import Banner from './Banner'
 import Disclaimer from './Disclaimer'
 import { useToast } from './ToastProvider'
 import { computeBondSlashBreakdown } from '../lib/bondPenalty'
+import { useReducedMotion } from '../hooks/useReducedMotion'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -63,6 +64,7 @@ interface CreateBondFlowProps {
 }
 
 export default function CreateBondFlow({ onComplete, onCancel }: CreateBondFlowProps = {}) {
+  const prefersReducedMotion = useReducedMotion()
   const { addToast } = useToast()
   const [step, setStep] = useState(1)
   const [amount, setAmount] = useState('')
@@ -154,7 +156,7 @@ export default function CreateBondFlow({ onComplete, onCancel }: CreateBondFlowP
             height: '4px',
             borderRadius: 'var(--credence-radius-full)',
             background: i <= step ? 'var(--color-primary)' : 'var(--border-default)',
-            transition: 'background 0.2s ease',
+            transition: prefersReducedMotion ? 'none' : 'background 0.2s ease',
           }}
         />
       ))}
@@ -251,7 +253,7 @@ export default function CreateBondFlow({ onComplete, onCancel }: CreateBondFlowP
                   borderRadius: 'var(--credence-radius-lg)',
                   fontWeight: 'var(--credence-font-weight-semibold)',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
+                  transition: prefersReducedMotion ? 'none' : 'all 0.2s ease',
                 }}
               >
                 {d} Days
