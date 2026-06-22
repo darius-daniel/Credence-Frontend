@@ -1,6 +1,7 @@
 import { Outlet, NavLink } from 'react-router-dom'
 import ThemeToggle from './ThemeToggle'
 import MobileNav from './navigation/MobileNav'
+import RouteAnnouncer from './RouteAnnouncer'
 import LINKS from '../config/links'
 import './Layout.css'
 
@@ -25,6 +26,10 @@ export default function Layout() {
       <a className="skip-link" href="#main-content">
         Skip to main content
       </a>
+
+      {/* Screen reader SPA route transition updates manager */}
+      <RouteAnnouncer />
+
       <header className="appHeader">
         {/* Mobile: hamburger toggle (hidden ≥640px via CSS) */}
         <MobileNav />
