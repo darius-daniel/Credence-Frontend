@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
+import { validateAndNormalize, defaultSettings, type SettingsBlob } from '../lib/settingsSchema'
 
 type ThemeMode = 'light' | 'dark' | 'system'
 
@@ -13,12 +14,13 @@ interface SettingsState {
   setAddressDisplay: (s: string) => void
   setToastsEnabled: (b: boolean) => void
   setAutoDismiss: (s: string) => void
-  saveSettings: () => void
+  saveSettings: (payload?: SettingsBlob) => void
   cancelSettings: () => void
   hasUnsavedChanges: boolean
 }
 
 const STORAGE_KEY = 'credence:settings'
+const LEGACY_THEME_KEY = 'theme'
 
 const defaultState: SettingsState = {
   themeMode: 'system',
@@ -31,7 +33,7 @@ const defaultState: SettingsState = {
   setAddressDisplay: () => {},
   setToastsEnabled: () => {},
   setAutoDismiss: () => {},
-  saveSettings: () => {},
+  saveSettings: (_payload?: SettingsBlob) => {},
   cancelSettings: () => {},
   hasUnsavedChanges: false,
 }
@@ -43,38 +45,36 @@ export function useSettings() {
 }
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
-  // Load saved settings from localStorage
-  const loadSavedSettings = () => {
+  const loadSavedSettings = (): ReturnType<typeof defaultSettings> => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY)
-      if (!raw) return null
-      return JSON.parse(raw)
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        const result = validateAndNormalize(parsed)
+        if (result.ok) return result.data
+        return defaultSettings()
+      }
+      const legacyTheme = localStorage.getItem(LEGACY_THEME_KEY)
+      if (legacyTheme) {
+        const result = validateAndNormalize({ themeMode: legacyTheme })
+        if (result.ok) {
+          localStorage.removeItem(LEGACY_THEME_KEY)
+          return result.data
+        }
+      }
+      return defaultSettings()
     } catch {
-      return null
+      return defaultSettings()
     }
   }
 
   const savedSettings = loadSavedSettings()
 
-  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
-    return (savedSettings?.themeMode as ThemeMode) || 'system'
-  })
-
-  const [network, setNetwork] = useState<string>(() => {
-    return savedSettings?.network || 'public'
-  })
-
-  const [addressDisplay, setAddressDisplay] = useState<string>(() => {
-    return savedSettings?.addressDisplay || 'short'
-  })
-
-  const [toastsEnabled, setToastsEnabled] = useState<boolean>(() => {
-    return typeof savedSettings?.toastsEnabled === 'boolean' ? savedSettings.toastsEnabled : true
-  })
-
-  const [autoDismiss, setAutoDismiss] = useState<string>(() => {
-    return savedSettings?.autoDismiss || '5s'
-  })
+  const [themeMode, setThemeMode] = useState<ThemeMode>(savedSettings.themeMode)
+  const [network, setNetwork] = useState<string>(savedSettings.network)
+  const [addressDisplay, setAddressDisplay] = useState<string>(savedSettings.addressDisplay)
+  const [toastsEnabled, setToastsEnabled] = useState<boolean>(savedSettings.toastsEnabled)
+  const [autoDismiss, setAutoDismiss] = useState<string>(savedSettings.autoDismiss)
 
   // Track the original saved state to detect unsaved changes
   const [originalSettings, setOriginalSettings] = useState(() => ({
@@ -114,12 +114,11 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // Explicit save function
-  const saveSettings = () => {
+  const saveSettings = (payload?: SettingsBlob) => {
     try {
-      const payload = { themeMode, network, addressDisplay, toastsEnabled, autoDismiss }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
-      setOriginalSettings({ themeMode, network, addressDisplay, toastsEnabled, autoDismiss })
+      const data = payload ?? { themeMode, network, addressDisplay, toastsEnabled, autoDismiss }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+      setOriginalSettings({ ...data })
     } catch {
       // ignore
     }

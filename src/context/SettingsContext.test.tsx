@@ -94,6 +94,28 @@ describe('SettingsContext persistence & theme application', () => {
   it('restores valid JSON from localStorage', () => {
     const payload = {
       themeMode: 'dark',
+      network: 'test',
+      addressDisplay: 'full',
+      toastsEnabled: false,
+      autoDismiss: '3s',
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+    setupMatchMedia(false)
+
+    render(
+      <SettingsProvider>
+        <StateDump />
+      </SettingsProvider>
+    )
+
+    const state = JSON.parse(screen.getByTestId('state').textContent || '{}')
+    expect(state).toEqual(payload)
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
+  })
+
+  it('clamps invalid enum values in localStorage to defaults', () => {
+    const payload = {
+      themeMode: 'invalid',
       network: 'private',
       addressDisplay: 'long',
       toastsEnabled: false,
@@ -109,9 +131,11 @@ describe('SettingsContext persistence & theme application', () => {
     )
 
     const state = JSON.parse(screen.getByTestId('state').textContent || '{}')
-    expect(state).toEqual(payload)
-    // explicit theme should be applied regardless of matchMedia
-    expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
+    expect(state.themeMode).toBe('system')
+    expect(state.network).toBe('public')
+    expect(state.addressDisplay).toBe('short')
+    expect(state.toastsEnabled).toBe(true)
+    expect(state.autoDismiss).toBe('5s')
   })
 
   it('falls back gracefully on corrupt JSON', () => {
