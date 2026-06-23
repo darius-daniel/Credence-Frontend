@@ -117,4 +117,85 @@ describe('apiFetch', () => {
       payload: undefined,
     })
   })
+
+  it('preserves query parameters in the request URL', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ items: [] }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await apiFetch('/bonds?status=active&page=2')
+
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/bonds?status=active&page=2')
+  })
+
+  it('does not set Content-Type when there is no JSON body', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ ok: true }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await apiFetch('/health')
+
+    const headers = fetchMock.mock.calls[0][1]?.headers as Headers
+    expect(headers.get('Accept')).toBe('application/json')
+    expect(headers.get('Content-Type')).toBeNull()
+  })
+
+  it('preserves custom headers alongside defaults', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({}))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await apiFetch('/bonds', {
+      headers: { 'X-Custom': 'my-value' },
+    })
+
+    const headers = fetchMock.mock.calls[0][1]?.headers as Headers
+    expect(headers.get('Accept')).toBe('application/json')
+    expect(headers.get('X-Custom')).toBe('my-value')
+  })
+
+  it('lets caller-provided Accept override the default', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({}))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await apiFetch('/bonds', {
+      headers: { Accept: 'text/plain' },
+    })
+
+    const headers = fetchMock.mock.calls[0][1]?.headers as Headers
+    expect(headers.get('Accept')).toBe('text/plain')
+  })
+
+  it('handles 500 with HTML body, using raw text as error message', async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response('<html>Internal Server Error</html>', { status: 500 })
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(apiFetch('/bonds')).rejects.toMatchObject({
+      status: 500,
+      message: '<html>Internal Server Error</html>',
+      payload: '<html>Internal Server Error</html>',
+    })
+  })
+
+  it('rejects with SyntaxError when server claims JSON but body is malformed', async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response('{bad json}', {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(apiFetch('/bonds')).rejects.toThrow(SyntaxError)
+  })
+
+  it('wraps non-Error thrown values in ApiError with status 0', async () => {
+    fetchMock.mockRejectedValueOnce('string error')
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(apiFetch('/bonds')).rejects.toMatchObject({
+      name: 'ApiError',
+      status: 0,
+      message: 'Network request failed',
+    })
+  })
 })
