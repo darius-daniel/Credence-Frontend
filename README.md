@@ -1,4 +1,4 @@
-# Credence Frontend
+# Credence Frontend [![CI Status](https://github.com/CredenceOrg/Credence-Frontend/actions/workflows/ci.yml/badge.svg)](https://github.com/CredenceOrg/Credence-Frontend/actions/workflows/ci.yml)
 
 Web UI for the Credence economic trust protocol. Connect a Stellar wallet, create or manage USDC bonds, and view trust scores.
 
@@ -24,6 +24,17 @@ npm run dev
 ```
 
 App runs at [http://localhost:5173](http://localhost:5173). API requests to `/api` are proxied to the backend (default `http://localhost:3000`).
+
+## Continuous Integration
+
+Every pull request and push to the `main` branch is validated by a GitHub Actions workflow. The quality gate ensures that the code compiles, is correctly formatted, passes all linting rules, and that all tests pass:
+
+- `npm run format:check`
+- `npm run lint`
+- `npm run build`
+- `npm run test`
+
+If any of these steps fail, the CI workflow will fail, and the PR cannot be merged until the issues are resolved.
 
 ## Configuration
 
