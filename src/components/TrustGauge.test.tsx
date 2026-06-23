@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
-import TrustGauge, { pointsToNextTier, getProgressPercentage, TIER_CONFIG } from './TrustGauge'
-import type { TrustTier } from './TrustGauge'
+import TrustGauge, { pointsToNextTier, getProgressPercentage } from './TrustGauge'
+import { TIERS, MAX_SCORE } from '../lib/tiers'
+import type { TrustTier } from '../lib/tiers'
 
 // --- pointsToNextTier ---
 describe('pointsToNextTier', () => {
@@ -154,10 +155,10 @@ describe('TrustGauge tier badge', () => {
   const tiers: TrustTier[] = ['bronze', 'silver', 'gold', 'platinum']
 
   tiers.forEach((tier) => {
-    it(`renders ${TIER_CONFIG[tier].label} badge for tier=${tier}`, () => {
-      const score = TIER_CONFIG[tier].min
+    it(`renders ${TIERS[tier].label} badge for tier=${tier}`, () => {
+      const score = TIERS[tier].min
       render(<TrustGauge score={score} tier={tier} />)
-      const badge = screen.getByText(TIER_CONFIG[tier].label, { selector: '[data-tier]' })
+      const badge = screen.getByText(TIERS[tier].label, { selector: '[data-tier]' })
       expect(badge).toHaveAttribute('data-tier', tier)
     })
   })
@@ -178,12 +179,12 @@ describe('TrustGauge score display', () => {
 
 // --- Tier legend ---
 describe('TrustGauge tier legend', () => {
-  it('renders all four tier range labels', () => {
+  it('renders all four tier range labels from canonical TIERS', () => {
     render(<TrustGauge score={0} tier="bronze" />)
-    expect(screen.getByText('Bronze: 0–250')).toBeInTheDocument()
-    expect(screen.getByText('Silver: 250–500')).toBeInTheDocument()
-    expect(screen.getByText('Gold: 500–750')).toBeInTheDocument()
-    expect(screen.getByText('Platinum: 750–1000')).toBeInTheDocument()
+    expect(screen.getByText(`Bronze: ${TIERS.bronze.min}–${TIERS.bronze.max}`)).toBeInTheDocument()
+    expect(screen.getByText(`Silver: ${TIERS.silver.min}–${TIERS.silver.max}`)).toBeInTheDocument()
+    expect(screen.getByText(`Gold: ${TIERS.gold.min}–${TIERS.gold.max}`)).toBeInTheDocument()
+    expect(screen.getByText(`Platinum: ${TIERS.platinum.min}–${MAX_SCORE}`)).toBeInTheDocument()
   })
 })
 
