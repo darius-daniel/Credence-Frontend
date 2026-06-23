@@ -175,4 +175,27 @@ describe('apiFetch', () => {
       payload: '<html>Internal Server Error</html>',
     })
   })
+
+  it('rejects with SyntaxError when server claims JSON but body is malformed', async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response('{bad json}', {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(apiFetch('/bonds')).rejects.toThrow(SyntaxError)
+  })
+
+  it('wraps non-Error thrown values in ApiError with status 0', async () => {
+    fetchMock.mockRejectedValueOnce('string error')
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(apiFetch('/bonds')).rejects.toMatchObject({
+      name: 'ApiError',
+      status: 0,
+      message: 'Network request failed',
+    })
+  })
 })
