@@ -82,4 +82,67 @@ describe('useWallet', () => {
     expect(result.current.isConnecting).toBe(false)
     expect(result.current.error).toBeNull()
   })
+
+  it('surfaces not_installed error when Freighter is absent', async () => {
+    const { result } = renderHook(() => useWallet('public'))
+
+    await act(async () => {
+      await result.current.connect()
+    })
+
+    expect(mocks.mockCheckFreighterInstalled).toHaveBeenCalled()
+    expect(result.current.error).toMatchObject({ code: 'not_installed' })
+    expect(result.current.isConnected).toBe(false)
+  })
+
+  it('surfaces rejected error when user denies access', async () => {
+    mocks.mockCheckFreighterInstalled.mockResolvedValue(true)
+    mocks.mockRequestFreighterAccess.mockResolvedValue({
+      ok: false,
+      code: 'rejected',
+      message: 'Connection request was rejected.',
+    })
+
+    const { result } = renderHook(() => useWallet('public'))
+
+    await act(async () => {
+      await result.current.connect()
+    })
+
+    expect(result.current.error).toMatchObject({ code: 'rejected' })
+    expect(result.current.isConnected).toBe(false)
+  })
+
+  it('surfaces network_mismatch error', async () => {
+    mocks.mockCheckFreighterInstalled.mockResolvedValue(true)
+    mocks.mockFetchFreighterNetwork.mockResolvedValue('test')
+
+    const { result } = renderHook(() => useWallet('public'))
+
+    await act(async () => {
+      await result.current.connect()
+    })
+
+    expect(result.current.error).toMatchObject({ code: 'network_mismatch' })
+    expect(result.current.isConnected).toBe(false)
+    expect(result.current.address).toBe('')
+  })
+
+  it('surfaces unknown error when client throws', async () => {
+    const { result } = renderHook(() => useWallet('public'))
+
+    await waitFor(() => {
+      expect(mocks.mockCheckFreighterInstalled).toHaveBeenCalledTimes(1)
+    })
+
+    mocks.mockCheckFreighterInstalled.mockRejectedValue(new Error('Network down'))
+
+    await act(async () => {
+      await result.current.connect()
+    })
+
+    expect(result.current.error).toMatchObject({ code: 'unknown' })
+    expect(result.current.isConnected).toBe(false)
+    expect(result.current.isConnecting).toBe(false)
+  })
 })
