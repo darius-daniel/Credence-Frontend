@@ -15,9 +15,7 @@
 const numberFormatter = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
-});
-
-
+})
 
 /**
  * Formats a numeric USDC amount for display with "USDC" suffix.
@@ -36,10 +34,10 @@ export function formatUsdc(amount: number): string {
 
 /**
  * Normalizes user-entered USDC string into a consistent representation.
- * 
+ *
  * Converts user input (with or without commas) to a fixed 2-decimal string.
  * Returns empty string for invalid input. Clamps negative values to 0.
- * 
+ *
  * @example
  * normalizeUSDC('1,234.5')   // → "1234.50"
  * normalizeUSDC('100')       // → "100.00"
@@ -60,9 +58,9 @@ export function normalizeUSDC(rawValue: string): string {
 
 /**
  * Formats a USDC string for display with thousand separators.
- * 
+ *
  * Returns invalid text unchanged for manual correction by user.
- * 
+ *
  * @example
  * formatUSDC('1234.5')   // → "1,234.50"
  * formatUSDC('abc')      // → "abc" (unchanged)
@@ -82,7 +80,7 @@ export function formatUSDC(rawValue: string): string {
 /**
  * UI display formatter for USDC amounts.
  * Similar to formatUSDC but optimized for UI display contexts.
- * 
+ *
  * @example
  * formatUSDCDisplay('1234.5')   // → "1,234.50"
  * formatUSDCDisplay('1000')     // → "1,000.00"
@@ -100,10 +98,10 @@ export function formatUSDCDisplay(rawValue: string): string {
 
 /**
  * Sanitizes USDC input by removing invalid characters while preserving valid decimal input.
- * 
+ *
  * Removes all non-digit and non-dot characters, trims fractions to 2 decimal places,
  * and normalizes leading zeros. Handles multiple dots by using only the first one.
- * 
+ *
  * @example
  * sanitizeUSDCInput('$1,000.50')  // → "1000.50"
  * sanitizeUSDCInput('12.345')     // → "12.34"
@@ -113,10 +111,10 @@ export function formatUSDCDisplay(rawValue: string): string {
  */
 export function sanitizeUSDCInput(nextValue: string): string {
   const cleaned = nextValue.replace(/[^\d.]/g, '')
-  
+
   // Return empty string if nothing left after cleaning
   if (!cleaned) return ''
-  
+
   // Handle multiple dots by splitting on first dot only
   const dotIndex = cleaned.indexOf('.')
   if (dotIndex === -1) {
@@ -124,11 +122,11 @@ export function sanitizeUSDCInput(nextValue: string): string {
     const trimmed = cleaned.replace(/^0+(?=\d)/, '')
     return trimmed || '0'
   }
-  
+
   const whole = cleaned.substring(0, dotIndex)
   const fraction = cleaned.substring(dotIndex + 1).replace(/\./g, '') // Remove any additional dots
   const trimmedWhole = whole.replace(/^0+(?=\d)/, '') || '0'
   const trimmedFraction = fraction.slice(0, 2)
-  
+
   return `${trimmedWhole}.${trimmedFraction}`
 }

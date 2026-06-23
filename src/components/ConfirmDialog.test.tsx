@@ -29,9 +29,7 @@ function renderDialog(overrides: Partial<Parameters<typeof ConfirmDialog>[0]> = 
 }
 
 /** Render without a breakdown (generic destructive action use case). */
-function renderGenericDialog(
-  overrides: Partial<Parameters<typeof ConfirmDialog>[0]> = {}
-) {
+function renderGenericDialog(overrides: Partial<Parameters<typeof ConfirmDialog>[0]> = {}) {
   const onConfirm = vi.fn()
   const onCancel = vi.fn()
 
@@ -394,9 +392,7 @@ describe('ConfirmDialog — configurable phrase + optional breakdown', () => {
   describe('confirmHint override', () => {
     it('shows default hint for bond withdrawal', () => {
       renderDialog()
-      expect(
-        screen.getByText(/Funds will be sent to your connected wallet/)
-      ).toBeInTheDocument()
+      expect(screen.getByText(/Funds will be sent to your connected wallet/)).toBeInTheDocument()
     })
 
     it('shows custom hint when provided', () => {

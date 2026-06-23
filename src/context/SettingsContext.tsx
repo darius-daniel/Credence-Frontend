@@ -3,6 +3,15 @@ import { useLocalStorage } from '../hooks/useLocalStorage'
 
 type ThemeMode = 'light' | 'dark' | 'system'
 
+/** The persisted settings payload (the subset of state written to localStorage). */
+interface SettingsPayload {
+  themeMode: ThemeMode
+  network: string
+  addressDisplay: string
+  toastsEnabled: boolean
+  autoDismiss: string
+}
+
 interface SettingsState {
   themeMode: ThemeMode
   network: string
@@ -14,7 +23,12 @@ interface SettingsState {
   setAddressDisplay: (s: string) => void
   setToastsEnabled: (b: boolean) => void
   setAutoDismiss: (s: string) => void
-  saveSettings: () => void
+  /**
+   * Persist settings. Pass an explicit payload to save immediately (avoids the
+   * stale-state race when called right after the individual setters); omit it to
+   * persist the current context state.
+   */
+  saveSettings: (next?: SettingsPayload) => void
   cancelSettings: () => void
   hasUnsavedChanges: boolean
 }

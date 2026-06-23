@@ -8,7 +8,9 @@ describe('isValidStellarAddress', () => {
   it('returns true for valid Stellar public keys', () => {
     expect(isValidStellarAddress(VALID_KEY)).toBe(true)
     // Another valid key
-    expect(isValidStellarAddress('GBRPYHIL2CI3FNQ4BXLFMNDLFJUNPU2HY3ZMFSHONUCEOASW7QC7OX2H')).toBe(true)
+    expect(isValidStellarAddress('GBRPYHIL2CI3FNQ4BXLFMNDLFJUNPU2HY3ZMFSHONUCEOASW7QC7OX2H')).toBe(
+      true
+    )
   })
 
   it('returns false for empty strings', () => {
@@ -23,19 +25,29 @@ describe('isValidStellarAddress', () => {
 
   it('returns false for malformed keys', () => {
     // Wrong prefix
-    expect(isValidStellarAddress('SAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWNA')).toBe(false)
+    expect(isValidStellarAddress('SAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWNA')).toBe(
+      false
+    )
     // Too short
     expect(isValidStellarAddress('GABC')).toBe(false)
     // Too long
     expect(isValidStellarAddress(VALID_KEY + 'EXTRA')).toBe(false)
     // Invalid characters
-    expect(isValidStellarAddress('GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWNa')).toBe(false) // lowercase
-    expect(isValidStellarAddress('GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN!')).toBe(false) // special char
+    expect(isValidStellarAddress('GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWNa')).toBe(
+      false
+    ) // lowercase
+    expect(isValidStellarAddress('GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN!')).toBe(
+      false
+    ) // special char
   })
 
   it('returns false for wrong prefix', () => {
-    expect(isValidStellarAddress('TAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWNA')).toBe(false)
-    expect(isValidStellarAddress('MAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWNA')).toBe(false)
+    expect(isValidStellarAddress('TAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWNA')).toBe(
+      false
+    )
+    expect(isValidStellarAddress('MAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWNA')).toBe(
+      false
+    )
   })
 
   it('returns false for short keys', () => {
@@ -89,7 +101,7 @@ describe('truncateAddress', () => {
   it('handles exact threshold length addresses', () => {
     const exactly20 = 'G'.repeat(20)
     expect(truncateAddress(exactly20)).toBe(exactly20)
-    
+
     const exactly21 = 'G'.repeat(21)
     expect(truncateAddress(exactly21)).toBe(`${'G'.repeat(12)}...${'G'.repeat(8)}`)
   })
@@ -107,7 +119,9 @@ describe('truncateAddress', () => {
   it('preserves address casing', () => {
     const mixedCase = 'GaAzI4TcR3Ty5OjHcTjC2A4QsY6CjWjH5IaJtGkIn2Er7LbNvKoCcWnA'
     const truncated = truncateAddress(mixedCase)
-    expect(truncated).toBe(`${mixedCase.substring(0, 12)}...${mixedCase.substring(mixedCase.length - 8)}`)
+    expect(truncated).toBe(
+      `${mixedCase.substring(0, 12)}...${mixedCase.substring(mixedCase.length - 8)}`
+    )
   })
 
   it('trims leading and trailing whitespace before length check', () => {

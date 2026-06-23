@@ -97,9 +97,8 @@ export default function AmountInput({
   const maxDisabled = balance <= 0
 
   // Merge any caller-supplied aria-describedby with our internal error id.
-  const describedBy = [ariaDescribedBy, activeError ? errorId : undefined]
-    .filter(Boolean)
-    .join(' ') || undefined
+  const describedBy =
+    [ariaDescribedBy, activeError ? errorId : undefined].filter(Boolean).join(' ') || undefined
 
   return (
     <div className="amountInput" data-invalid={isInvalid ? 'true' : 'false'}>

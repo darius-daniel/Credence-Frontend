@@ -17,47 +17,11 @@ import type { ConfirmDialogPenaltyBreakdown } from '../components/ConfirmDialog'
 
 const ConfirmDialog = lazy(() => import('../components/ConfirmDialog'))
 
-type BondStatus = 'active' | 'locked' | 'grace-period'
-
-interface MockBond {
-  id: number
-  amountUsdc: number
-  status: BondStatus
-}
-
 const initialBonds: MockBond[] = [
   { id: 1, amountUsdc: 1000, status: 'locked' },
   { id: 2, amountUsdc: 500, status: 'grace-period' },
   { id: 3, amountUsdc: 750, status: 'active' },
 ]
-
-function getPenaltyRate(status: BondStatus): number {
-  switch (status) {
-    case 'locked':
-      return 0.2
-    case 'grace-period':
-      return 0.1
-    case 'active':
-    default:
-      return 0
-  }
-}
-
-function computeWithdrawBreakdown(bond: MockBond): ConfirmDialogPenaltyBreakdown & {
-  penaltyUsdc: number
-} {
-  const penaltyPercent = Math.round(getPenaltyRate(bond.status) * 100)
-  const penaltyUsdc = bond.amountUsdc * getPenaltyRate(bond.status)
-  const resultingUsdc = bond.amountUsdc - penaltyUsdc
-
-  return {
-    bondAmount: formatUsdc(bond.amountUsdc),
-    penaltyAmount: formatUsdc(penaltyUsdc),
-    penaltyPercent,
-    resultingBalance: formatUsdc(resultingUsdc),
-    penaltyUsdc,
-  }
-}
 
 interface BondRowProps {
   bond: MockBond

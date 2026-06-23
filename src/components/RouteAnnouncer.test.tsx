@@ -1,23 +1,23 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, act } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import RouteAnnouncer from './RouteAnnouncer';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, act } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
+import RouteAnnouncer from './RouteAnnouncer'
 
 describe('RouteAnnouncer Component', () => {
   beforeEach(() => {
-    vi.useFakeTimers();
-  });
+    vi.useFakeTimers()
+  })
 
   afterEach(() => {
-    vi.useRealTimers();
-  });
+    vi.useRealTimers()
+  })
 
   it('is visually hidden but correctly structured in the DOM tree on mount', () => {
     render(
       <MemoryRouter initialEntries={['/dashboard']}>
         <RouteAnnouncer />
       </MemoryRouter>
-    );
+    )
 
     const announcerRegion = document.querySelector('.sr-only') as HTMLElement
     expect(announcerRegion).toHaveAttribute('aria-live', 'polite');
@@ -29,32 +29,34 @@ describe('RouteAnnouncer Component', () => {
       <MemoryRouter initialEntries={['/bond']}>
         <RouteAnnouncer />
       </MemoryRouter>
-    );
+    )
 
     const announcer = document.querySelector('.sr-only') as HTMLElement
     expect(announcer.textContent).toBe('');
 
     act(() => {
-      vi.advanceTimersByTime(100);
-    });
-    expect(announcer.textContent).toBe('Bond page loaded');
-  });
+      vi.advanceTimersByTime(100)
+    })
+    expect(announcer.textContent).toBe('Bond page loaded')
+  })
 
   it('updates text dynamically on active route modifications', () => {
     const { rerender } = render(
-      <MemoryRouter initialEntries={['/dashboard']}>
+      <MemoryRouter key="dashboard" initialEntries={['/dashboard']}>
         <RouteAnnouncer />
       </MemoryRouter>
-    );
+    )
 
     act(() => { vi.advanceTimersByTime(100); });
     expect(screen.getByText('Dashboard page loaded')).toBeInTheDocument();
 
+    // A distinct key remounts the router at the new entry; MemoryRouter only reads
+    // initialEntries on mount, so without this the location would not change.
     rerender(
       <MemoryRouter key="/trust" initialEntries={['/trust']}>
         <RouteAnnouncer />
       </MemoryRouter>
-    );
+    )
 
     act(() => { vi.advanceTimersByTime(100); });
     expect(screen.getByText('Trust Score page loaded')).toBeInTheDocument();
@@ -65,7 +67,7 @@ describe('RouteAnnouncer Component', () => {
       <MemoryRouter initialEntries={['/some/unknown/route']}>
         <RouteAnnouncer />
       </MemoryRouter>
-    );
+    )
 
     act(() => { vi.advanceTimersByTime(100); });
     expect(screen.getByText('Page Not Found loaded')).toBeInTheDocument();

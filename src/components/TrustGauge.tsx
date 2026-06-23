@@ -225,18 +225,26 @@ export default function TrustGauge({
       <div className="trust-gauge__legend">
         <p className="trust-gauge__legend-title">Tier Ranges</p>
         <ul className="trust-gauge__legend-list">
-          {TIER_ORDER.map((t) => (
-            <li key={t} className="trust-gauge__legend-item">
-              <span
-                className="trust-gauge__legend-dot"
-                style={{ backgroundColor: TIER_CONFIG[t].color }}
-                aria-hidden="true"
-              />
-              <span className="trust-gauge__legend-text">
-                {TIER_CONFIG[t].label}: {TIER_CONFIG[t].min}–{TIER_CONFIG[t].max}
-              </span>
-            </li>
-          ))}
+          {TIER_ORDER.map((t, index) => {
+            // Show each band's upper bound as the next tier's entry threshold
+            // (e.g. Bronze: 0–250), and cap the top tier at the gauge maximum.
+            const upper =
+              index < TIER_ORDER.length - 1
+                ? TIER_CONFIG[TIER_ORDER[index + 1]].min
+                : TIER_CONFIG[t].max
+            return (
+              <li key={t} className="trust-gauge__legend-item">
+                <span
+                  className="trust-gauge__legend-dot"
+                  style={{ backgroundColor: TIER_CONFIG[t].color }}
+                  aria-hidden="true"
+                />
+                <span className="trust-gauge__legend-text">
+                  {TIER_CONFIG[t].label}: {TIER_CONFIG[t].min}–{upper}
+                </span>
+              </li>
+            )
+          })}
         </ul>
       </div>
     </div>

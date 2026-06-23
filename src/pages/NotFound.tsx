@@ -24,18 +24,14 @@ export default function NotFound() {
           height="32"
           aria-hidden="true"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M6 18L18 6M6 6l12 12"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </div>
 
       <h1 className="not-found-title">Page Not Found</h1>
-      
+
       <p className="not-found-code">404</p>
-      
+
       <p className="not-found-description">
         The page at <code>{location.pathname}</code> does not exist. It may have been moved or removed.
       </p>
@@ -52,17 +48,11 @@ export default function NotFound() {
       </div>
 
       <div className="not-found-actions">
-        <Button 
-          variant="primary" 
-          onClick={() => navigate('/')}
-        >
+        <Button variant="primary" onClick={() => navigate('/')}>
           Back to Home
         </Button>
 
-        <Button 
-          variant="secondary" 
-          onClick={() => navigate(-1)}
-        >
+        <Button variant="secondary" onClick={() => navigate(-1)}>
           Go Back
         </Button>
       </div>
@@ -75,5 +65,5 @@ export default function NotFound() {
         .
       </p>
     </main>
-  );
+  )
 }
