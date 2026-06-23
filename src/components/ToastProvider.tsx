@@ -61,11 +61,6 @@ export default function ToastProvider({ children }: { children: ReactNode }) {
 
       // respect global toast enable setting
       if (!toastsEnabled) return
-      const id = String(++idCounter.current)
-      setToasts((prev: ToastData[]) => {
-        const next = [...prev, { id, severity, message }]
-        return next.length > MAX_TOASTS ? next.slice(next.length - MAX_TOASTS) : next
-      })
 
       // compute timeout: settings `autoDismiss` can override default TIMEOUTS
       let timeout = TIMEOUTS[severity]
