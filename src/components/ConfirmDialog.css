@@ -163,6 +163,46 @@
   min-width: min(100%, 8rem);
 }
 
+.confirm-dialog.confirm-dialog--info {
+  border: 1px solid var(--credence-border-default);
+  background: var(--credence-surface-card);
+  color: var(--credence-text-primary);
+}
+
+.confirm-dialog.confirm-dialog--info .confirm-dialog__header {
+  border-bottom: 1px solid var(--credence-border-default);
+  background: var(--credence-surface-page);
+}
+
+.confirm-dialog.confirm-dialog--info .confirm-dialog__title {
+  color: var(--credence-text-primary);
+}
+
+.confirm-dialog.confirm-dialog--info .confirm-dialog__subtitle {
+  color: var(--credence-text-secondary);
+}
+
+.confirm-dialog.confirm-dialog--info .confirm-dialog__confirm-field label {
+  color: var(--credence-text-primary);
+}
+
+.confirm-dialog.confirm-dialog--info .confirm-dialog__confirm-field input {
+  border: 1px solid var(--credence-border-default);
+}
+
+.confirm-dialog.confirm-dialog--info .confirm-dialog__confirm-field input:focus-visible {
+  outline: 2px solid var(--credence-color-primary);
+}
+
+.confirm-dialog.confirm-dialog--info .confirm-dialog__confirm-hint {
+  color: var(--credence-text-secondary);
+}
+
+.confirm-dialog.confirm-dialog--info .confirm-dialog__footer {
+  border-top: 1px solid var(--credence-border-default);
+  background: var(--credence-surface-page);
+}
+
 @keyframes confirm-dialog-fade-in {
   from {
     opacity: 0;

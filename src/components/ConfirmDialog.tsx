@@ -20,15 +20,25 @@ export interface ConfirmDialogProps {
   title: string
   subtitle?: string
   /**
-   * Financial breakdown to display. When omitted, the `description` slot is
-   * rendered instead — use this for non-withdrawal destructive actions.
+   * Financial breakdown to display. When omitted, the `description` slot or
+   * `children` is rendered instead.
    */
   breakdown?: ConfirmDialogPenaltyBreakdown
   /**
    * Arbitrary content shown in the body when `breakdown` is not provided.
-   * Ignored when `breakdown` is present.
    */
   description?: React.ReactNode
+  /**
+   * React children slot for custom content in the dialog body.
+   */
+  children?: React.ReactNode
+  onConfirm: () => void
+  onCancel: () => void
+  returnFocusRef?: RefObject<HTMLElement | null>
+  confirmLabel?: string
+  confirmInputLabel?: React.ReactNode
+  confirmInputHint?: React.ReactNode
+  variant?: 'danger' | 'info'
   /**
    * Word the user must type exactly to unlock the confirm button.
    * Defaults to `'CONFIRM'`.
@@ -39,10 +49,6 @@ export interface ConfirmDialogProps {
    * Defaults to the wallet/funds hint used for bond withdrawals.
    */
   confirmHint?: string
-  onConfirm: () => void
-  onCancel: () => void
-  returnFocusRef?: RefObject<HTMLElement | null>
-  confirmLabel?: string
 }
 
 export default function ConfirmDialog({
@@ -51,12 +57,16 @@ export default function ConfirmDialog({
   subtitle,
   breakdown,
   description,
-  confirmPhrase = DEFAULT_CONFIRM_PHRASE,
-  confirmHint = DEFAULT_CONFIRM_HINT,
+  children,
   onConfirm,
   onCancel,
   returnFocusRef,
   confirmLabel = 'Withdraw bond',
+  confirmInputLabel,
+  confirmInputHint,
+  variant = 'danger',
+  confirmPhrase = DEFAULT_CONFIRM_PHRASE,
+  confirmHint = DEFAULT_CONFIRM_HINT,
 }: ConfirmDialogProps) {
   const titleId = useId()
   const descId = useId()
@@ -137,7 +147,7 @@ export default function ConfirmDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descId}
-        className="confirm-dialog"
+        className={`confirm-dialog confirm-dialog--${variant}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div id={announcementId} className="sr-only" aria-live="assertive" aria-atomic="true">
@@ -171,10 +181,16 @@ export default function ConfirmDialog({
             <div className="confirm-dialog__description">{description}</div>
           ) : null}
 
+          {children}
+
           <div className="confirm-dialog__confirm-field">
             <label htmlFor={`${titleId}-confirm-input`}>
-              Type <strong>{confirmPhrase}</strong> to enable{' '}
-              {confirmLabel !== 'Withdraw bond' ? confirmLabel.toLowerCase() : 'withdrawal'}
+              {confirmInputLabel || (
+                <>
+                  Type <strong>{confirmPhrase}</strong> to enable{' '}
+                  {confirmLabel !== 'Withdraw bond' ? confirmLabel.toLowerCase() : 'withdrawal'}
+                </>
+              )}
             </label>
             <input
               id={`${titleId}-confirm-input`}
@@ -186,7 +202,9 @@ export default function ConfirmDialog({
               aria-required="true"
               placeholder={confirmPhrase}
             />
-            <p className="confirm-dialog__confirm-hint">{confirmHint}</p>
+            <p className="confirm-dialog__confirm-hint">
+              {confirmInputHint || confirmHint}
+            </p>
           </div>
         </div>
 
@@ -197,7 +215,7 @@ export default function ConfirmDialog({
           <Button
             ref={confirmRef}
             type="button"
-            variant="danger"
+            variant={variant === 'danger' ? 'danger' : 'primary'}
             disabled={!isConfirmEnabled}
             onClick={handleConfirm}
             aria-disabled={!isConfirmEnabled}

@@ -13,6 +13,15 @@ function NavigateTo({ to }: { to: string }) {
   return null
 }
 
+// Helper component to trigger dynamic route transitions in tests
+function TestNavigator({ to }: { to: string }) {
+  const navigate = useNavigate();
+  useEffect(() => {
+    navigate(to);
+  }, [to, navigate]);
+  return null;
+}
+
 describe('RouteAnnouncer Component', () => {
   beforeEach(() => {
     vi.useFakeTimers()
@@ -23,7 +32,7 @@ describe('RouteAnnouncer Component', () => {
   })
 
   it('is visually hidden but correctly structured in the DOM tree on mount', () => {
-    render(
+    const { container } = render(
       <MemoryRouter initialEntries={['/dashboard']}>
         <RouteAnnouncer />
       </MemoryRouter>
@@ -35,7 +44,7 @@ describe('RouteAnnouncer Component', () => {
   });
 
   it('defers the announcement text setup until after layout paint', () => {
-    render(
+    const { container } = render(
       <MemoryRouter initialEntries={['/bond']}>
         <RouteAnnouncer />
       </MemoryRouter>
@@ -66,6 +75,7 @@ describe('RouteAnnouncer Component', () => {
     rerender(
       <MemoryRouter key="/trust" initialEntries={['/trust']}>
         <RouteAnnouncer />
+        <TestNavigator to="/trust" />
       </MemoryRouter>
     )
 
@@ -74,7 +84,7 @@ describe('RouteAnnouncer Component', () => {
   });
 
   it('falls back gracefully to structural 404 descriptions given unknown routes', () => {
-    render(
+    const { container } = render(
       <MemoryRouter initialEntries={['/some/unknown/route']}>
         <RouteAnnouncer />
       </MemoryRouter>
