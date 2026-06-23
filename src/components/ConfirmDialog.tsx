@@ -5,7 +5,8 @@ import Button from './Button'
 import './ConfirmDialog.css'
 
 const DEFAULT_CONFIRM_PHRASE = 'CONFIRM'
-const DEFAULT_CONFIRM_HINT = 'This action cannot be undone. Funds will be sent to your connected wallet.'
+const DEFAULT_CONFIRM_HINT =
+  'This action cannot be undone. Funds will be sent to your connected wallet.'
 
 export interface ConfirmDialogPenaltyBreakdown {
   bondAmount: string

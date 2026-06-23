@@ -496,7 +496,7 @@ describe('SettingsProvider', () => {
       render(
         <SettingsProvider>
           <UnsavedProbe />
-        </SettingsProvider>,
+        </SettingsProvider>
       )
 
       expect(screen.getByTestId('theme').textContent).toBe('dark')

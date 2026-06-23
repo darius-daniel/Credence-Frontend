@@ -87,7 +87,6 @@ export default function CreateBondFlow({ onComplete, onCancel }: CreateBondFlowP
     setAcknowledged(false)
   }
 
-
   const handleNext = () => {
     if (step === 1) {
       if (!amount || Number(amount) <= 0) {
@@ -260,7 +259,6 @@ export default function CreateBondFlow({ onComplete, onCancel }: CreateBondFlowP
           >
             Step 3: Review Terms
           </h2>
-
 
           <Banner severity="warning" title="Early withdrawal — slash exposure">
             Withdrawing before lock maturity incurs a slash penalty on your principal. The figures

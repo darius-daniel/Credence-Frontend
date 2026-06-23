@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { formatUsdc, normalizeUSDC, formatUSDC, formatUSDCDisplay, sanitizeUSDCInput } from './format'
+import {
+  formatUsdc,
+  normalizeUSDC,
+  formatUSDC,
+  formatUSDCDisplay,
+  sanitizeUSDCInput,
+} from './format'
 
 describe('formatUsdc', () => {
   it('formats numeric USDC amounts with suffix', () => {
@@ -92,7 +98,7 @@ describe('formatUSDCDisplay', () => {
 
   it('behaves identically to formatUSDC', () => {
     const testCases = ['1234.5', '1000', '0.01', '1000000', 'abc', '']
-    testCases.forEach(testCase => {
+    testCases.forEach((testCase) => {
       expect(formatUSDCDisplay(testCase)).toBe(formatUSDC(testCase))
     })
   })

@@ -63,7 +63,7 @@ export default function TrustScore() {
         }
         return next
       },
-      { replace: true },
+      { replace: true }
     )
   }
 

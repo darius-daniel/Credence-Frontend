@@ -6,6 +6,8 @@ This directory contains comprehensive design specifications and implementation g
 
 ### Available Documents
 
+- **[Hooks & Utilities Reference](./HOOKS.md)** — Catalog of the reusable primitives in `src/hooks/` and `src/lib/`: signatures, parameters/returns, behavior notes (SSR-safety, cleanup), and usage snippets linking to source. Start here before adding a new hook or helper.
+
 1. **[Testing Guide](./TESTING.md)**
    - How to run Vitest and generate coverage
    - Render helpers, router wrapper, and mock patterns for matchMedia / localStorage / clipboard
@@ -68,10 +70,10 @@ This directory contains comprehensive design specifications and implementation g
    - Testing guide and troubleshooting
    - [Decision Matrix](./mobile-navigation-DECISION.md) | [Reconnaissance Report](./mobile-nav-RECON.md) | [Figma Rules](./figma-nav-rules.md)
 
-9. **[Architecture Overview](./ARCHITECTURE.md)** ⭐ NEW
-   - Provider tree and routing architecture
-   - Context responsibilities
-   - Theming flow and mock data boundaries
+10. **[Architecture Overview](./ARCHITECTURE.md)** ⭐ NEW
+    - Provider tree and routing architecture
+    - Context responsibilities
+    - Theming flow and mock data boundaries
 
 ### Quick Start
 
@@ -186,6 +188,7 @@ sanitizeUSDCInput(nextValue: string): string
 ```
 
 **Usage Examples:**
+
 ```typescript
 import { formatUsdc, normalizeUSDC, formatUSDC, sanitizeUSDCInput } from '@/lib/format'
 
@@ -203,6 +206,7 @@ sanitizeUSDCInput('$1,000.50') // → "1000.50"
 ```
 
 **Behavior Preservation:**
+
 - Thousands separators maintained for display
 - Decimal precision fixed at 2 places
 - Empty values handled gracefully
@@ -224,6 +228,7 @@ truncateAddress(address: string | undefined | null): string
 ```
 
 **Usage Examples:**
+
 ```typescript
 import { isValidStellarAddress, truncateAddress } from '@/lib/stellar'
 
@@ -236,6 +241,7 @@ truncateAddress('GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWNA')
 ```
 
 **Behavior Preservation:**
+
 - Exact 56-character validation
 - 'G' prefix requirement
 - Uppercase alphanumeric characters only
@@ -248,6 +254,7 @@ truncateAddress('GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWNA')
 All components should now import from these centralized modules instead of maintaining local implementations:
 
 **Before:**
+
 ```typescript
 // In component files
 export function normalizeUSDC(rawValue: string) { ... }
@@ -255,6 +262,7 @@ export function isValidStellarAddress(address: string) { ... }
 ```
 
 **After:**
+
 ```typescript
 // Import from centralized modules
 import { normalizeUSDC } from '@/lib/format'
@@ -264,10 +272,12 @@ import { isValidStellarAddress } from '@/lib/stellar'
 ### Test Coverage
 
 Both utility modules have comprehensive test suites with ≥95% branch coverage:
+
 - `src/lib/format.test.ts` - USDC formatting tests
 - `src/lib/stellar.test.ts` - Stellar address tests
 
 Run tests with:
+
 ```bash
 npm test -- --run src/lib/format.test.ts src/lib/stellar.test.ts
 ```
@@ -277,7 +287,7 @@ npm test -- --run src/lib/format.test.ts src/lib/stellar.test.ts
 The following components have been refactored to use the centralized utilities:
 
 1. **AmountInput.tsx** - USDC input formatting and sanitization
-2. **AddressInput.tsx** - Stellar address validation and truncation  
+2. **AddressInput.tsx** - Stellar address validation and truncation
 3. **TrustScore.tsx** - Stellar address validation
 4. **useTrustScore.ts** - Stellar address validation
 5. **Bond.tsx** - USDC display formatting
@@ -288,6 +298,7 @@ The following components have been refactored to use the centralized utilities:
 ### Future Development
 
 When adding new formatting or validation logic:
+
 1. Check if it belongs in the centralized modules
 2. Add comprehensive test coverage
 3. Update this documentation

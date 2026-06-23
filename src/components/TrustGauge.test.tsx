@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import TrustGauge, { pointsToNextTier, getProgressPercentage, TIER_CONFIG } from './TrustGauge'
-import type { TrustTier } from './TrustGauge'
+import type { TrustTier } from '../lib/tier'
 
 // --- pointsToNextTier ---
 describe('pointsToNextTier', () => {

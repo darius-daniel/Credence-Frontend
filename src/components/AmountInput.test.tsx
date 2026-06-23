@@ -178,7 +178,9 @@ describe('AmountInput', () => {
       const input = screen.getByRole('textbox')
       const errorId = input.getAttribute('aria-describedby')
       expect(errorId).toBeTruthy()
-      expect(document.getElementById(errorId!)).toHaveTextContent('Amount exceeds available balance.')
+      expect(document.getElementById(errorId!)).toHaveTextContent(
+        'Amount exceeds available balance.'
+      )
     })
 
     it('explicit error prop overrides the internal over-balance error', () => {

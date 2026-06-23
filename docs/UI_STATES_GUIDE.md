@@ -496,11 +496,11 @@ Each bond row in the Active Bonds list surfaces penalty exposure inline — befo
 
 ### States per row
 
-| Bond status | Disclosure control | Panel content |
-|---|---|---|
-| `locked` | "Show penalty" button (`aria-expanded`) | Bond amount, 20% penalty amount, resulting balance |
+| Bond status    | Disclosure control                      | Panel content                                      |
+| -------------- | --------------------------------------- | -------------------------------------------------- |
+| `locked`       | "Show penalty" button (`aria-expanded`) | Bond amount, 20% penalty amount, resulting balance |
 | `grace-period` | "Show penalty" button (`aria-expanded`) | Bond amount, 10% penalty amount, resulting balance |
-| `active` | None (no expander) | Static "No early-withdrawal penalty" message |
+| `active`       | None (no expander)                      | Static "No early-withdrawal penalty" message       |
 
 ### Behaviour
 

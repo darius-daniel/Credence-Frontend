@@ -2,6 +2,15 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 
 type ThemeMode = 'light' | 'dark' | 'system'
 
+/** The persisted settings payload (the subset of state written to localStorage). */
+interface SettingsPayload {
+  themeMode: ThemeMode
+  network: string
+  addressDisplay: string
+  toastsEnabled: boolean
+  autoDismiss: string
+}
+
 interface SettingsState {
   themeMode: ThemeMode
   network: string
@@ -13,12 +22,24 @@ interface SettingsState {
   setAddressDisplay: (s: string) => void
   setToastsEnabled: (b: boolean) => void
   setAutoDismiss: (s: string) => void
-  saveSettings: () => void
+  /**
+   * Persist settings. Pass an explicit payload to save immediately (avoids the
+   * stale-state race when called right after the individual setters); omit it to
+   * persist the current context state.
+   */
+  saveSettings: (next?: SettingsPayload) => void
   cancelSettings: () => void
   hasUnsavedChanges: boolean
 }
 
 const STORAGE_KEY = 'credence:settings'
+
+/**
+ * Legacy localStorage key the standalone ThemeToggle used to persist the theme.
+ * Read once at startup to seed `themeMode`, then removed so theme has a single
+ * source of truth under {@link STORAGE_KEY}.
+ */
+const LEGACY_THEME_KEY = 'theme'
 
 const defaultState: SettingsState = {
   themeMode: 'system',
@@ -54,10 +75,24 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  // One-time read of the legacy ThemeToggle 'theme' key, used only to seed
+  // themeMode when credence:settings has no theme yet. The orphan key is removed
+  // by an effect below once it has been folded into the single source of truth.
+  const loadLegacyTheme = (): ThemeMode | null => {
+    try {
+      const legacy = localStorage.getItem(LEGACY_THEME_KEY)
+      return legacy === 'light' || legacy === 'dark' || legacy === 'system' ? legacy : null
+    } catch {
+      return null
+    }
+  }
+
   const savedSettings = loadSavedSettings()
 
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
-    return (savedSettings?.themeMode as ThemeMode) || 'system'
+    // credence:settings is the source of truth; fall back to the legacy 'theme'
+    // key (migration), then to the default.
+    return (savedSettings?.themeMode as ThemeMode) || loadLegacyTheme() || 'system'
   })
 
   const [network, setNetwork] = useState<string>(() => {
@@ -115,11 +150,11 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   // Explicit save function
-  const saveSettings = () => {
+  const saveSettings = (next?: SettingsPayload) => {
     try {
-      const payload = { themeMode, network, addressDisplay, toastsEnabled, autoDismiss }
+      const payload = next ?? { themeMode, network, addressDisplay, toastsEnabled, autoDismiss }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
-      setOriginalSettings({ themeMode, network, addressDisplay, toastsEnabled, autoDismiss })
+      setOriginalSettings(payload)
     } catch {
       // ignore
     }

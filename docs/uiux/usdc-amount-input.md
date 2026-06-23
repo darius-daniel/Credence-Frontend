@@ -6,15 +6,15 @@
 
 ## Props
 
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `value` | `string` | — | Controlled decimal amount string (e.g. `"100.00"`) |
-| `onChange` | `(value: string) => void` | — | Called with sanitized value on each keystroke; normalized value on blur |
-| `balance` | `number` | — | Available balance; drives Max/preset disabling and over-balance validation |
-| `presets` | `number[]` | `[100, 500, 1000]` | Quick-select amounts rendered as chips below the input |
-| `currencyLabel` | `string` | `"USDC"` | Label shown as input adornment and in aria-labels |
-| `error` | `string` | — | Explicit error message; takes precedence over the internal over-balance error |
-| `onValidityChange` | `(isValid: boolean) => void` | — | Called whenever internal validity changes; lets callers gate submission without re-implementing the comparison |
+| Prop               | Type                         | Default            | Description                                                                                                    |
+| ------------------ | ---------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------- |
+| `value`            | `string`                     | —                  | Controlled decimal amount string (e.g. `"100.00"`)                                                             |
+| `onChange`         | `(value: string) => void`    | —                  | Called with sanitized value on each keystroke; normalized value on blur                                        |
+| `balance`          | `number`                     | —                  | Available balance; drives Max/preset disabling and over-balance validation                                     |
+| `presets`          | `number[]`                   | `[100, 500, 1000]` | Quick-select amounts rendered as chips below the input                                                         |
+| `currencyLabel`    | `string`                     | `"USDC"`           | Label shown as input adornment and in aria-labels                                                              |
+| `error`            | `string`                     | —                  | Explicit error message; takes precedence over the internal over-balance error                                  |
+| `onValidityChange` | `(isValid: boolean) => void` | —                  | Called whenever internal validity changes; lets callers gate submission without re-implementing the comparison |
 
 ---
 

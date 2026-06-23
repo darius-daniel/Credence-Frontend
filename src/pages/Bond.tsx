@@ -15,47 +15,11 @@ import type { MockBond } from '../lib/penalty'
 
 const ConfirmDialog = lazy(() => import('../components/ConfirmDialog'))
 
-type BondStatus = 'active' | 'locked' | 'grace-period'
-
-interface MockBond {
-  id: number
-  amountUsdc: number
-  status: BondStatus
-}
-
 const initialBonds: MockBond[] = [
   { id: 1, amountUsdc: 1000, status: 'locked' },
   { id: 2, amountUsdc: 500, status: 'grace-period' },
   { id: 3, amountUsdc: 750, status: 'active' },
 ]
-
-function getPenaltyRate(status: BondStatus): number {
-  switch (status) {
-    case 'locked':
-      return 0.2
-    case 'grace-period':
-      return 0.1
-    case 'active':
-    default:
-      return 0
-  }
-}
-
-function computeWithdrawBreakdown(bond: MockBond): ConfirmDialogPenaltyBreakdown & {
-  penaltyUsdc: number
-} {
-  const penaltyPercent = Math.round(getPenaltyRate(bond.status) * 100)
-  const penaltyUsdc = bond.amountUsdc * getPenaltyRate(bond.status)
-  const resultingUsdc = bond.amountUsdc - penaltyUsdc
-
-  return {
-    bondAmount: formatUsdc(bond.amountUsdc),
-    penaltyAmount: formatUsdc(penaltyUsdc),
-    penaltyPercent,
-    resultingBalance: formatUsdc(resultingUsdc),
-    penaltyUsdc,
-  }
-}
 
 interface BondRowProps {
   bond: MockBond
@@ -93,7 +57,14 @@ function BondRow({ bond, isConnected, onWithdraw, onConnect }: BondRowProps) {
           <span style={{ fontWeight: 500 }}>{formatUsdc(bond.amountUsdc)}</span>
           <Badge variant={bond.status as BadgeVariant} />
         </div>
-        <div style={{ display: 'flex', gap: 'var(--credence-space-2)', flexWrap: 'wrap', alignItems: 'center' }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: 'var(--credence-space-2)',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+          }}
+        >
           {hasPenalty && (
             <button
               type="button"
@@ -141,13 +112,16 @@ function BondRow({ bond, isConnected, onWithdraw, onConnect }: BondRowProps) {
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span>Bond amount</span><span>{breakdown.bondAmount}</span>
+            <span>Bond amount</span>
+            <span>{breakdown.bondAmount}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span>Penalty ({breakdown.penaltyPercent}%)</span><span>− {breakdown.penaltyAmount}</span>
+            <span>Penalty ({breakdown.penaltyPercent}%)</span>
+            <span>− {breakdown.penaltyAmount}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600 }}>
-            <span>You receive</span><span>{breakdown.resultingBalance}</span>
+            <span>You receive</span>
+            <span>{breakdown.resultingBalance}</span>
           </div>
         </div>
       ) : (

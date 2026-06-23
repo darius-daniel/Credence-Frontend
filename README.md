@@ -69,7 +69,9 @@ The link variable intent and legal handoff notes are also tracked in `docs/foote
 ## Documentation
 
 See the [docs/](docs/) directory for detailed project documentation, including:
+
 - [Architecture Overview](docs/ARCHITECTURE.md) — Runtime structure, provider tree, and data flow seams.
+- [Hooks & Utilities Reference](docs/HOOKS.md) — Catalog of reusable hooks (`src/hooks/`) and helpers (`src/lib/`) with signatures and usage.
 
 ## Project layout
 

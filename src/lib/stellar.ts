@@ -8,10 +8,10 @@
 
 /**
  * Validates Stellar public key format.
- * 
+ *
  * Valid addresses: 56 characters, starts with 'G', contains only
  * uppercase letters A-Z and digits 0-9.
- * 
+ *
  * @example
  * isValidStellarAddress('GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWNA') // → true
  * isValidStellarAddress('invalid') // → false
@@ -26,10 +26,10 @@ export function isValidStellarAddress(address: string | undefined | null): boole
 
 /**
  * Truncates address for display: shows first 12 and last 8 characters.
- * 
+ *
  * Preserves short addresses unchanged. Returns empty string for empty input.
  * Handles undefined/null values gracefully. Trims whitespace.
- * 
+ *
  * @example
  * truncateAddress('GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWNA')
  * // → "GAAZI4TCR3TY...CCWNA"
