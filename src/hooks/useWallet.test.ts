@@ -145,4 +145,89 @@ describe('useWallet', () => {
     expect(result.current.isConnected).toBe(false)
     expect(result.current.isConnecting).toBe(false)
   })
+
+  it('connect while already connected is idempotent', async () => {
+    mocks.mockCheckFreighterInstalled.mockResolvedValue(true)
+    mocks.mockCreateWalletWatcher.mockResolvedValue({ stop: vi.fn() })
+
+    const { result } = renderHook(() => useWallet('public'))
+
+    await act(async () => {
+      await result.current.connect()
+    })
+    expect(result.current.isConnected).toBe(true)
+
+    await act(async () => {
+      await result.current.connect()
+    })
+
+    expect(result.current.isConnected).toBe(true)
+    expect(result.current.address).toBe(TEST_ADDRESS)
+    expect(mocks.mockRequestFreighterAccess).toHaveBeenCalledTimes(2)
+  })
+
+  it('disconnect while disconnected is idempotent', async () => {
+    const { result } = renderHook(() => useWallet('public'))
+    await waitFor(() => {
+      expect(result.current.isConnected).toBe(false)
+    })
+
+    expect(() => {
+      act(() => {
+        result.current.disconnect()
+      })
+    }).not.toThrow()
+
+    expect(result.current.address).toBe('')
+    expect(result.current.isConnected).toBe(false)
+  })
+
+  it('clears error on retry after a rejection', async () => {
+    mocks.mockCheckFreighterInstalled.mockResolvedValue(true)
+    mocks.mockRequestFreighterAccess
+      .mockResolvedValueOnce({ ok: false, code: 'rejected', message: 'Denied' })
+      .mockResolvedValueOnce({ ok: true, address: TEST_ADDRESS })
+    mocks.mockCreateWalletWatcher.mockResolvedValue({ stop: vi.fn() })
+
+    const { result } = renderHook(() => useWallet('public'))
+
+    await act(async () => {
+      await result.current.connect()
+    })
+    expect(result.current.error).toMatchObject({ code: 'rejected' })
+
+    await act(async () => {
+      await result.current.connect()
+    })
+
+    expect(result.current.error).toBeNull()
+    expect(result.current.isConnected).toBe(true)
+    expect(result.current.address).toBe(TEST_ADDRESS)
+  })
+
+  it('reports network as test when settingsNetwork is test', async () => {
+    const { result } = renderHook(() => useWallet('test'))
+
+    await waitFor(() => {
+      expect(result.current.isConnected).toBe(false)
+    })
+
+    expect(result.current.network).toBe('test')
+  })
+
+  it('restores prior session on mount when already connected', async () => {
+    mocks.mockCheckFreighterInstalled.mockResolvedValue(true)
+    mocks.mockFetchFreighterAddress.mockResolvedValue(TEST_ADDRESS)
+    mocks.mockFetchFreighterNetwork.mockResolvedValue('public')
+    mocks.mockCreateWalletWatcher.mockResolvedValue({ stop: vi.fn() })
+
+    const { result } = renderHook(() => useWallet('public'))
+
+    await waitFor(() => {
+      expect(result.current.isConnected).toBe(true)
+    })
+
+    expect(result.current.address).toBe(TEST_ADDRESS)
+    expect(result.current.error).toBeNull()
+  })
 })
